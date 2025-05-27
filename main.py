@@ -1,4 +1,5 @@
 import ctypes
+import socket
 
 DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 = -4
 try:
@@ -27,6 +28,7 @@ from states.selection_cours_state import SelectionCoursState
 from states.horaire_state import HoraireState
 from states.exit_state import ExitState
 from utils.logging_config import configure_logging
+from utils.posthog import initialize_posthog
 
 required_files = {
     'JNLP file': os.getenv('JNLP_PATH'),
@@ -40,13 +42,22 @@ def main():
     logger = configure_logging("Main")
     logger.info("=== Starting ChemiNotify ===")
 
+    # Initialize telemetry - only sends UUID if enabled and reachable
+    try:
+        posthog_client, user_id = initialize_posthog()
+    except socket.gaierror:
+        logger.warning("PostHog DNS failed—disabling telemetry.")
+        posthog_client = None
+        user_id = None
+
     if missing:
-        logging.error(f"Missing files: {', '.join(missing)}")
+        logger.error(f"Missing files: {', '.join(missing)}")
         sys.exit(1)
-    
+
     try:
         SESSION_DURATION_MINUTES = int(os.getenv('SESSION_DURATION_MINUTES'))
-    
+        logger.debug("SESSION_DURATION_MINUTES: %s", SESSION_DURATION_MINUTES)
+
         # Loop forever: each pass is one session-duration
         while True:
             # Fresh state instances each session
@@ -74,7 +85,12 @@ def main():
 
     except KeyboardInterrupt:
         logger.info("Interrupted by user, shutting down.")
+    except Exception as e:
+        logger.exception(f"Unexpected error: {e}")
     finally:
+        # Flush any pending events before exit
+        if posthog_client:
+            posthog_client.flush()
         logger.info("=== ChemiNotify Finished ===")
 
 if __name__ == "__main__":

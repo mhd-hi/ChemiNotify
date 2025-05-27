@@ -21,7 +21,7 @@ def configure_logging(name="Main"):
     
     # Configure handlers
     handlers = [logging.StreamHandler()]
-    handlers.append(logging.FileHandler("logs/cheminot_crawler.log", mode='a'))
+    handlers.append(logging.FileHandler("logs/cheminotify.log", mode='a'))
     
     # Configure logging
     logging.basicConfig(
