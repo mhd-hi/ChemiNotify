@@ -103,14 +103,14 @@ def ask_for_consent():
     """Ask the user for telemetry consent via terminal prompt"""
     print("Would you allow the app to send anonymous usage statistics?")
     print("This only sends a random ID when the app starts to help me analyze how many people are using ChemiNotify (purely for stats purposes).")
-    print("Enable anonymous usage analytics? (y/n) (Press Enter to skip): ", end="")
-
-    response = input().strip().lower()
-    consent = not response or response in ('y', 'yes')
-
-    if consent:
-        print("Anonymous telemetry enabled.")
-    else:
-        print("Telemetry disabled.")
-
-    return consent
+    
+    while True:
+        response = input("Enable anonymous usage analytics? (y/n): ").strip().lower()
+        if response in ('y', 'yes'):
+            print("Anonymous telemetry enabled.")
+            return True
+        elif response in ('n', 'no'):
+            print("Telemetry disabled.")
+            return False
+        else:
+            print("Please enter 'y' or 'n'.")
