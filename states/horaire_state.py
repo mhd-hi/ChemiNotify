@@ -24,7 +24,7 @@ class HoraireState(AppState):
         time.sleep(wait_secs)
         return "SELECTION_COURS"
 
-    def _take_window_screenshot(self, window, name_suffix=None) -> str:
+    def _take_window_screenshot(self, window, name_suffix=None) -> str | None:
         """
         Takes a screenshot of just the Cheminot window instead of the entire screen
         
@@ -87,8 +87,8 @@ class HoraireState(AppState):
             self.take_error_screenshot("pixel_check_failed")
             return "EXIT"
 
-        course_code = os.getenv('TRACKING_COURSE_CODE').upper()
-        base_retry_min = float(os.getenv('COURSE_NOT_AVAILABLE_RETRY_WAIT_MINUTES'))
+        course_code = os.getenv('TRACKING_COURSE_CODE', 'GTI611').upper()
+        base_retry_min = float(os.getenv('COURSE_NOT_AVAILABLE_RETRY_WAIT_MINUTES', 10))
 
         if (r, g, b) == (0, 0, 0): 
             # BLACK pixel means course is available
@@ -107,6 +107,7 @@ class HoraireState(AppState):
             self.logger.info(f"{course_code} not available (pixel is gray C0C0C0) - retrying in {base_retry_min}m")
             return self._schedule_retry(base_retry_min)
         else:
+            discord_notifier = DiscordNotification()
             discord_notifier.send("ERROR: unexpected_pixel_color", 
                                   "RGB: " + str((r, g, b)), 
                                   screenshot_path)

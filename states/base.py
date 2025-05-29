@@ -1,17 +1,16 @@
 import os
-import time
 import pygetwindow as gw
-import logging
+import time
 
-from abc import ABC, abstractmethod
+from utils.logging_config import configure_logging
+from utils.screenshot import screenshot, take_debug_screenshot
 
-class AppState(ABC):
-    """Base class for all application states"""
+class AppState:
+    """Base class for all application states."""
     
     def __init__(self):
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = configure_logging(self.__class__.__name__)
 
-    @abstractmethod
     def detect(self) -> bool:
         """
         Detect if the application is currently in this state
@@ -19,7 +18,6 @@ class AppState(ABC):
         """
         pass
 
-    @abstractmethod
     def handle(self) -> str:
         """
         Handle the current state and return the next state name
@@ -39,14 +37,12 @@ class AppState(ABC):
             return None
             
         try:
-            from utils.screenshot import take_debug_screenshot
-            
             state_name = self.__class__.__name__.replace("State", "")
             name = f"{state_name}"
             if name_suffix:
                 name = f"{name}_{name_suffix}"
 
-            return take_debug_screenshot(name)
+            return take_debug_screenshot(name) # type: ignore
         except Exception as e:
             self.logger.error(f"Failed to take screenshot: {str(e)}")
             return None

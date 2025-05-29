@@ -25,8 +25,14 @@ class SelectionCoursState(AppState):
         click(TABS['SELECTION_COURS'])
         time.sleep(1)
 
+        course_code = os.getenv('TRACKING_COURSE_CODE', 'GTI611')
+        if course_code:
+            course_code = course_code.upper()
+        else:
+            self.logger.error("TRACKING_COURSE_CODE environment variable not set, using default")
+            course_code = 'GTI611'
+
         # Coordinates of the course button
-        course_code = os.getenv('TRACKING_COURSE_CODE').upper()
         coords = COURSE_SELECTION_COORDS.get(course_code)
         if not coords:
             self.logger.error(f"No coordinates for course {course_code}, exiting.")
@@ -35,10 +41,15 @@ class SelectionCoursState(AppState):
         before = list_window_titles()
         click(coords)
 
+        # Fix for window.title in ignore set
+        ignore_set = {"CONSULTATION"}
+        if window:
+            ignore_set.add(window.title)
+
         new_title = wait_for_new_window(
             before,
             timeout=1.5,
-            ignore={window.title, "CONSULTATION"}
+            ignore=ignore_set
         )
 
         if new_title:
@@ -62,11 +73,11 @@ class SelectionCoursState(AppState):
 
             # If course is full, wait and retry
             if "complets" in text or "annulations" in text:
-                retry_wait_min = float(os.getenv('COURSE_NOT_AVAILABLE_RETRY_WAIT_MINUTES'))
+                retry_wait_min = float(os.getenv('COURSE_NOT_AVAILABLE_RETRY_WAIT_MINUTES', 10))
                 wait_secs = retry_wait_min * 60
 
                 self.logger.info(
-                    f"Course full, retrying in {retry_wait_min}m (next at {time.strftime("%H:%M:%S", time.localtime(time.time() + wait_secs))})"
+                    f"Course full, retrying in {retry_wait_min}m (next at {time.strftime('%H:%M:%S', time.localtime(time.time() + wait_secs))})"
                 )
                 time.sleep(wait_secs)
                 return "SELECTION_COURS"

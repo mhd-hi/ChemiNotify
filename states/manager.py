@@ -1,8 +1,8 @@
 import time
-import logging
-from typing import Dict
 import traceback
 import os
+from typing import Dict, Optional
+from utils.logging_config import configure_logging
 from .base import AppState
 
 class StateManager:
@@ -12,13 +12,13 @@ class StateManager:
         self,
         states: Dict[str, AppState],
         initial_state: str = "INITIAL",
-        session_timeout: int = None, # in seconds
+        session_timeout: Optional[int] = None,  # in seconds
     ):
         self.states = states
         self.current_state_name = initial_state
         self.session_timeout = session_timeout
         self.session_start_time = None
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = configure_logging(self.__class__.__name__)
 
     def take_error_screenshot(self, error_name: str = "state_manager_error"):
         """Takes a screenshot when an error occurs (only in DEBUG mode)"""
@@ -27,7 +27,7 @@ class StateManager:
 
         try:
             from utils.screenshot import take_debug_screenshot
-            return take_debug_screenshot(error_name)
+            return take_debug_screenshot(error_name) # type: ignore
         except Exception as e:
             self.logger.error(f"Failed to take error screenshot: {str(e)}")
             return None

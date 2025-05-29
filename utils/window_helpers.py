@@ -9,8 +9,8 @@ def list_window_titles() -> Set[str]:
 def wait_for_new_window(
     before: Set[str],
     timeout: float = 2.0,
-    poll: float   = 0.1,
-    ignore: Set[str] = None
+    poll: float = 0.1,
+    ignore: Optional[Set[str]] = None
 ) -> Optional[str]:
     """
     Poll for up to `timeout` seconds for a window title to appear

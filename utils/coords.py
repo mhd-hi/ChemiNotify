@@ -1,7 +1,12 @@
-
-import ctypes, win32gui, pyautogui, pygetwindow as gw
+import ctypes
+import win32gui
+import pyautogui
+import pygetwindow as gw
 
 from utils.constants.button_coords import REF_WINDOW_SIZES
+from utils.logging_config import configure_logging
+
+logger = configure_logging("Coords")
 
 def _client_to_screen(hwnd, point):
     """Win32 ClientToScreen in physical px; returns (x,y) in physical px."""
@@ -10,7 +15,13 @@ def _client_to_screen(hwnd, point):
 
 def _scale_for_window(hwnd, logical_point, state_name):
     """Turn a logical_point in your design coords into a physical client px tuple."""
-    ref_w, ref_h = REF_WINDOW_SIZES.get(state_name)
+    ref_sizes = REF_WINDOW_SIZES.get(state_name)
+    if not ref_sizes:
+        logger.error(f"State name '{state_name}' not found in REF_WINDOW_SIZES, using default size.")
+        ref_w, ref_h = 1024, 768
+    else:
+        ref_w, ref_h = ref_sizes
+    
     left, top, right, bottom = win32gui.GetClientRect(hwnd)
     actual_w, actual_h = right - left, bottom - top
 
@@ -36,7 +47,7 @@ def click(logical_point, window=None, state_name="LE_CHEMINOT"):
 
     pyautogui.click(screen_x, screen_y)
 
-def moveTo(logical_point, window=None, duration=0, state_name="LE_CHEMINOT"):
+def moveTo(logical_point, window=None, duration=0.0, state_name="LE_CHEMINOT"):
     """
     Move to logical client-relative point inside `window`.
     """

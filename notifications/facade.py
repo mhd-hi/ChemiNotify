@@ -1,3 +1,4 @@
+from typing import Optional, List
 import os
 
 from .base import NotificationChannel
@@ -7,7 +8,7 @@ class NotificationFacade:
     """
     Facade to send notifications via multiple channels.
     """
-    def __init__(self, channels: list[NotificationChannel] = None):
+    def __init__(self, channels: Optional[List[NotificationChannel]] = None):
         if channels:
             self._channels = channels
         else:

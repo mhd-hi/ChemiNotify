@@ -19,9 +19,10 @@ def configure_logging(name="Main"):
     os.makedirs("logs", exist_ok=True)
     os.makedirs("logs/screenshots", exist_ok=True)
     
-    # Configure handlers
-    handlers = [logging.StreamHandler()]
-    handlers.append(logging.FileHandler("logs/cheminot_crawler.log", mode='a'))
+    handlers = [
+        logging.StreamHandler(),
+        logging.FileHandler("logs/cheminotify.log", mode='a')
+    ]
     
     # Configure logging
     logging.basicConfig(

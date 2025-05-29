@@ -30,11 +30,16 @@ class LoginState(AppState):
         # Load environment variables
         dotenv.load_dotenv()
 
-        app_username = os.getenv("CHEMINOT_USERNAME").strip('"')
-        app_password = os.getenv("CHEMINOT_PASSWORD").strip('"')
+        app_username = os.getenv("CHEMINOT_USERNAME", "add me in .env file")
+        if app_username:
+            app_username = app_username.strip('"')
+            
+        app_password = os.getenv("CHEMINOT_PASSWORD", "add me in .env file")
+        if app_password:
+            app_password = app_password.strip('"')
 
         if not app_username or not app_password:
-            self.logger.error("Missing credentials in .env file")
+            self.logger.error("Missing credentials in .env file (CHEMINOT_USERNAME or CHEMINOT_PASSWORD)")
             return "ERROR"
 
         self.logger.info("Entering username...")

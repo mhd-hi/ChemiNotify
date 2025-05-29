@@ -9,7 +9,6 @@ except (AttributeError, OSError):
     except Exception:
         ctypes.windll.user32.SetProcessDpiAware()
 
-import logging
 import os
 import sys
 import time
@@ -41,11 +40,11 @@ def main():
     logger.info("=== Starting ChemiNotify ===")
 
     if missing:
-        logging.error(f"Missing files: {', '.join(missing)}")
+        logger.error(f"Missing files: {', '.join(missing)}")
         sys.exit(1)
     
     try:
-        SESSION_DURATION_MINUTES = int(os.getenv('SESSION_DURATION_MINUTES'))
+        SESSION_DURATION_MINUTES = int(os.getenv('SESSION_DURATION_MINUTES', 32))
     
         # Loop forever: each pass is one session-duration
         while True:

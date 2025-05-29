@@ -1,6 +1,7 @@
 import os
 import requests
-import logging
+from typing import Optional
+from utils.logging_config import configure_logging
 
 from .base import NotificationChannel
 
@@ -8,12 +9,12 @@ class DiscordNotification(NotificationChannel):
     """
     Notification channel to send messages to Discord via webhook.
     """
-    def __init__(self, webhook_url: str = os.getenv('DISCORD_WEBHOOK_URL')):
+    def __init__(self, webhook_url: Optional[str] = os.getenv('DISCORD_WEBHOOK_URL')):
         self.webhook_url = webhook_url
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = configure_logging(self.__class__.__name__)
         self.include_screenshots = os.getenv('NOTIFICATION_INCLUDE_SCREENSHOTS', '1') != '0'
 
-    def send(self, subject: str, body: str, image_path: str = None) -> bool:
+    def send(self, subject: str, body: str, image_path: Optional[str] = None) -> bool:
         """
         Send a Discord notification, optionally with an image attachment.
         
@@ -63,6 +64,10 @@ class DiscordNotification(NotificationChannel):
             return self._send_text_message(subject, body)
 
     def _send_text_message(self, subject: str, body: str) -> bool:
+        if not self.webhook_url:
+            self.logger.error("No webhook URL configured for text message.")
+            return False
+            
         payload = {
             'content': f"**{subject}**\n{body}"
         }
