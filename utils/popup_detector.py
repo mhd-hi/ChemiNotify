@@ -127,10 +127,10 @@ class PopupDetector:
             
             time.sleep(0.2)
             
-            # Take screenshot of popup using direct region
+            # Take screenshot of popup
             self.logger.debug("Taking screenshot of popup window")
             region = (popup_window.left, popup_window.top, popup_window.width, popup_window.height)
-            popup_img = pyautogui.screenshot(region=region) # type: ignore
+            popup_img = screenshot(region=region)
             
             if popup_img is None:
                 self.logger.error("Failed to capture popup screenshot")
