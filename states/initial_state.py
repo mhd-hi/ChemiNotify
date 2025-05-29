@@ -3,8 +3,10 @@ import time
 import win32gui
 import win32con
 
+from utils.popup_detector import PopupDetector
+
 from .base import AppState
-from utils.constants.texts import WINDOW_TITLES
+from utils.constants.texts import EXEMPTED_WINDOW_TITLES, UNWANTED_WINDOW_TITLES, WINDOW_TITLES
 
 class InitialState(AppState):
     """Initial state - starts fresh by closing any unwanted windows and launching the app"""
@@ -17,8 +19,9 @@ class InitialState(AppState):
         """
         Close any visible windows containing specified substrings, except exempted ones.
         """
-        unwanted_window_titles = ['cheminot', 'à propos de ', 'Attention']
-        exempted_window_titles = ['visual studio code', 'vs code']  # needed to code this app lol
+
+        popup_detector = PopupDetector()
+        popup_detector.detect_and_handle_active_popups()
 
         def _close_if_unwanted(hwnd, _):
             if not win32gui.IsWindowVisible(hwnd):
@@ -26,8 +29,8 @@ class InitialState(AppState):
             title = win32gui.GetWindowText(hwnd) or ""
             lower = title.lower()
 
-            to_remove = any(sub in lower for sub in unwanted_window_titles)
-            to_exempt = any(ex in lower for ex in exempted_window_titles)
+            to_remove = any(sub in lower for sub in UNWANTED_WINDOW_TITLES)
+            to_exempt = any(ex in lower for ex in EXEMPTED_WINDOW_TITLES)
 
             if to_remove and not to_exempt:
                 self.logger.info(f"Closing window: '{title}'")

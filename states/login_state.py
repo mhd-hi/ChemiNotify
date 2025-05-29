@@ -8,6 +8,7 @@ from .base import AppState
 from utils.coords import click
 from utils.constants.button_coords import LOGIN_STATE_COORDS
 from utils.constants.texts import WINDOW_TITLES
+from utils.popup_detector import PopupDetector
 
 class LoginState(AppState):    
     def detect(self) -> bool:
@@ -73,6 +74,10 @@ class LoginState(AppState):
 
         self.logger.info("Waiting for login to complete (3 seconds)")
         time.sleep(2.0)
+
+        # Check for and handle any popups that might be active
+        detector = PopupDetector()
+        detector.detect_and_handle_active_popups()
 
         self.logger.info("Login complete, transitioning to consultation state")
         return "CONSULTATION"

@@ -23,9 +23,11 @@ ChemiNotify automates the monitoring of course availability in the Cheminot enro
 git clone https://github.com/mhd-hi/ChemiNotify.git
 cd ChemiNotify
 ```
-2. Install dependencies
+2. Install dependencies 
+On Powershell:
 ```
 pip install -r requirements.txt
+Invoke-WebRequest -Uri "https://github.com/tesseract-ocr/tessdata/raw/main/fra.traineddata" -OutFile "C:\Program Files\Tesseract-OCR\tessdata\fra.traineddata"
 ```
 
 ### Configuration

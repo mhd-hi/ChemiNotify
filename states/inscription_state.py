@@ -4,6 +4,7 @@ import pygetwindow as gw
 from .base import AppState
 from utils.constants.button_coords import TABS
 from utils.coords import click
+from utils.popup_detector import PopupDetector
 
 class InscriptionState(AppState):
     """Handles the inscription session screen"""
@@ -26,10 +27,22 @@ class InscriptionState(AppState):
         if not window:
             self.logger.error("Could not focus inscription window, attempting to continue")
         
+        # Initialize popup detector
+        popup_detector = PopupDetector()
+        
+        # Click on SELECTION_COURS tab and handle any popups
         self.logger.info("Clicking on SELECTION_COURS tab")
         selection_coords = TABS['SELECTION_COURS']
-        click(selection_coords)
-
+        
+        popup_detector.detect_popup(
+            action=lambda: click(selection_coords),
+            timeout=1.0,
+            handle_automatically=True
+        )
+        
+        # Ensure we check for any remaining popups before proceeding
+        popup_detector.detect_and_handle_active_popups()
+        
         time.sleep(1)
         
         self.logger.info("Navigated to course selection, transitioning to selection course state")
