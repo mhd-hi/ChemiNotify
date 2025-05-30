@@ -22,7 +22,7 @@ POPUP_SCHEDULE_CONFLICT = {
 POPUP_ERROR = {
     'title': [],
     'text': ['erreur'],
-    'return_value': 'error'
+    'return_value': 'erreur'
 }
 
 POPUP_ABOUT = {

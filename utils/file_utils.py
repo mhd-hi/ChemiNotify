@@ -46,7 +46,6 @@ def save_file(
             
         filepath = os.path.join(directory, filename)
         
-        # Save the file based on its type
         if hasattr(file_data, 'save'):  # For PIL Image objects
             file_data.save(filepath)
         elif isinstance(file_data, bytes):

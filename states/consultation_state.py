@@ -36,10 +36,6 @@ class ConsultationState(AppState):
         self.logger.info("Handling consultation state")
         
         window = self.ensure_window_focus(["Le ChemiNot"])
-        from utils.window_helpers import list_window_titles
-        all_windows = list_window_titles()
-        self.logger.info(f"Current windows: {all_windows}")
-            
 
         if not window:
             self.logger.warning("Could not focus consultation window, attempting to continue")

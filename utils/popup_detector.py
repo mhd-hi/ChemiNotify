@@ -80,9 +80,9 @@ class PopupDetector:
                     self.logger.debug("Automatic popup handling enabled, capturing text...")
                     popup_text = self.capture_popup_text(popup_window)
                     if popup_text:
-                        popup_type = self.handle_standard_popups(popup_window, popup_text, new_title)
+                        popup_type = self.handle_popups(popup_window, popup_text, new_title)
                         self.logger.debug(f"Automatically handled popup as type: {popup_type}")
-                        # The popup is already closed by handle_standard_popups
+                        # The popup is already closed by handle_popups
                         return new_title, None, popup_type
                     else:
                         self.logger.debug("No text captured from popup, cannot handle automatically")
@@ -162,18 +162,18 @@ class PopupDetector:
             self.logger.error(f"Failed to capture popup text: {e}")
             return None
 
-    def handle_standard_popups(self, popup_window, popup_text, popup_title=None):
+    def handle_popups(self, popup_window, popup_text, popup_title=None):
 
         if popup_window is None:
-            self.logger.debug("No popup window provided to handle_standard_popups")
+            self.logger.debug("No popup window provided to handle_popups")
             return None
 
         self.logger.debug(
             f"Analyzing popup - Title: '{popup_title}', Text length: {len(popup_text) if popup_text else 0}"
         )
 
-        norm_popup = self.normalize(popup_text) if popup_text else ""
-        norm_title = self.normalize(popup_title) if popup_title else ""
+        norm_popup = normalize(popup_text) if popup_text else ""
+        norm_title = normalize(popup_title) if popup_title else ""
 
         for popup_type in POPUP_TYPES:
             popup_name = popup_type.get('return_value', 'unknown')
@@ -182,7 +182,7 @@ class PopupDetector:
             if popup_type['title'] and popup_title:
                 title_matches = [
                     title for title in popup_type['title']
-                    if self.normalize(title) in norm_title
+                    if normalize(title) in norm_title
                 ]
                 title_match = len(title_matches) > 0
                 self.logger.debug(f"Title match result for {popup_name}: {title_match} (matched: {title_matches if title_match else 'none'})")
@@ -192,7 +192,7 @@ class PopupDetector:
             if popup_type['text'] and popup_text:
                 text_matches = [
                     text for text in popup_type['text']
-                    if self.normalize(text) in norm_popup
+                    if normalize(text) in norm_popup
                 ]
                 text_match = len(text_matches) > 0
                 self.logger.debug(f"Text match result for {popup_name}: {text_match} (matched: {text_matches if text_match else 'none'})")
@@ -299,7 +299,7 @@ class PopupDetector:
                     
                 # Get popup text and determine popup type
                 popup_text = self.capture_popup_text(window)
-                popup_type = self.handle_standard_popups(window, popup_text, window_title)
+                popup_type = self.handle_popups(window, popup_text, window_title)
                 
                 if popup_type and popup_type != POPUP_UNKNOWN_RETURN_VALUE:
                     self.logger.info(f"Successfully handled popup of type: {popup_type}")
@@ -393,8 +393,8 @@ class PopupDetector:
         Returns:
             bool: True if popup is recognized, False otherwise
         """
-        norm_popup = self.normalize(trimmed_text) if trimmed_text else ""
-        norm_title = self.normalize(popup_window.title) if hasattr(popup_window, 'title') else ""
+        norm_popup = normalize(trimmed_text) if trimmed_text else ""
+        norm_title = normalize(popup_window.title) if hasattr(popup_window, 'title') else ""
         
         for popup_type in POPUP_TYPES:
             # Title matching
@@ -402,7 +402,7 @@ class PopupDetector:
             if popup_type['title'] and hasattr(popup_window, 'title'):
                 title_matches = [
                     title for title in popup_type['title']
-                    if self.normalize(title) in norm_title
+                    if normalize(title) in norm_title
                 ]
                 title_match = len(title_matches) > 0
             
@@ -411,7 +411,7 @@ class PopupDetector:
             if popup_type['text'] and trimmed_text:
                 text_matches = [
                     text for text in popup_type['text']
-                    if self.normalize(text) in norm_popup
+                    if normalize(text) in norm_popup
                 ]
                 text_match = len(text_matches) > 0
             
@@ -420,11 +420,13 @@ class PopupDetector:
                 return True
         
         return False
-    
-    @staticmethod
-    def normalize(txt: str) -> str:
-        import unicodedata, re
-        txt = unicodedata.normalize('NFD', txt)
-        txt = txt.encode('ascii', 'ignore').decode('utf-8')
-        txt = re.sub(r'\s+', ' ', txt)
-        return txt.lower().strip()
+
+def normalize(txt: str) -> str:
+    """
+    Normalize text for window matching: lower, ascii, strip, collapse whitespace.
+    """
+    import unicodedata, re
+    txt = unicodedata.normalize('NFD', txt)
+    txt = txt.encode('ascii', 'ignore').decode('utf-8')
+    txt = re.sub(r'\s+', ' ', txt)
+    return txt.lower().strip()

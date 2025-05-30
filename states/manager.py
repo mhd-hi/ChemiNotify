@@ -27,7 +27,7 @@ class StateManager:
 
         try:
             from utils.screenshot import take_debug_screenshot
-            return take_debug_screenshot(error_name) # type: ignore
+            return take_debug_screenshot(error_name)
         except Exception as e:
             self.logger.error(f"Failed to take error screenshot: {str(e)}")
             return None

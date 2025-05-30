@@ -46,7 +46,6 @@ def main():
     try:
         SESSION_DURATION_MINUTES = int(os.getenv('SESSION_DURATION_MINUTES', 32))
     
-        # Loop forever: each pass is one session-duration
         while True:
             # Fresh state instances each session
             states = {
@@ -54,7 +53,7 @@ def main():
                 "LOGIN":          LoginState(),
                 "CONSULTATION":   ConsultationState(),
                 "INSCRIPTION":    InscriptionState(),
-                "SELECTION_COURS":SelectionCoursState(),
+                "SELECTION_COURS": SelectionCoursState(),
                 "HORAIRE":        HoraireState(),
                 "EXIT":           ExitState(),
             }

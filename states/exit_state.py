@@ -12,7 +12,7 @@ class ExitState(AppState):
         return False
 
     def handle(self) -> str:
-        self.logger.info("ExitState: starting clean-up…")
+        self.logger.info("ExitState: starting clean-up...")
 
         window = self.ensure_window_focus(["Le ChemiNot"])
         if not window:
@@ -32,4 +32,4 @@ class ExitState(AppState):
             self.logger.warning("Login window not found; skipping Alt+F4")
 
         self.logger.info("ExitState: done, terminating state machine")
-        return None
+        return ""
