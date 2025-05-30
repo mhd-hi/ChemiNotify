@@ -7,3 +7,4 @@ pytesseract
 requests
 Pillow
 dotenv
+posthog

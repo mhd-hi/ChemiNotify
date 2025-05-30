@@ -13,6 +13,7 @@ ChemiNotify automates the monitoring of course availability in the Cheminot enro
 
 ## Onboarding
 ### Prerequisites
+- Tested on program "Génie logiciel"
 - Tested on Windows 11
 - Python
 - Java
@@ -40,11 +41,10 @@ Invoke-WebRequest -Uri "https://github.com/tesseract-ocr/tessdata/raw/main/fra.t
 python main.py
 ```
 
-## Legal Notice
+## Privacy & Legal Notice
 
 This tool is provided for personal use only. By using ChemiNotify, you agree to the following:
 
 - This tool runs entirely on your local machine and does not collect, store, or transmit any student data.
-- All credentials and configurations are stored locally on your computer.
-- No information is shared with any third parties or remote servers except for the notifications you explicitly configure.
+- No personal information is shared with any third parties or remote servers except for anonymous telemetry (random UUID only) (if consented to) and the notifications you explicitly configure.
 - This tool is not affiliated with or endorsed by any educational institution or the developers of the ChemiNot system.

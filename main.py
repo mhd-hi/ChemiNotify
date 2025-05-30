@@ -1,4 +1,5 @@
 import ctypes
+import socket
 
 from utils.file_utils import cleanup_old_screenshots
 
@@ -31,6 +32,7 @@ from states.horaire_state import HoraireState
 from states.exit_state import ExitState
 from states.state_types import StateType
 from utils.logging_config import configure_logging
+from utils.posthog import initialize_posthog
 
 required_files = {
     "JNLP file": os.getenv("CHEMINOT_FILE_PATH"),
@@ -50,6 +52,14 @@ pytesseract.pytesseract.tesseract_cmd = os.getenv("TESSERACT_CMD")
 def main():
     logger = configure_logging("Main")
     logger.info("=== Starting ChemiNotify ===")
+
+    # Initialize telemetry - only sends UUID if enabled and reachable
+    try:
+        posthog_client, user_id = initialize_posthog()
+    except socket.gaierror:
+        logger.warning("PostHog DNS failed—disabling telemetry.")
+        posthog_client = None
+        user_id = None
 
     if missing:
         logger.error(f"Missing files: {', '.join(missing)}")
@@ -88,7 +98,12 @@ def main():
 
     except KeyboardInterrupt:
         logger.info("Interrupted by user, shutting down.")
+    except Exception as e:
+        logger.exception(f"Unexpected error: {e}")
     finally:
+        # Flush any pending events before exit
+        if posthog_client:
+            posthog_client.flush()
         logger.info("=== ChemiNotify Finished ===")
 
 
