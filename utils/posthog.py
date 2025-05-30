@@ -1,4 +1,3 @@
-import os
 import uuid
 import socket
 import json
@@ -10,8 +9,6 @@ from posthog import Posthog
 
 logger = logging.getLogger(__name__)
 
-# Configuration
-
 # PostHog API key intended to be visible, since it's only used for sending events
 POSTHOG_API_KEY = "phc_1RDgY4dpBlUNYRdZKH2WlOAFydNZcrXfMFkIpKSONfU"
 POSTHOG_HOST = "https://us.i.posthog.com"
@@ -19,15 +16,8 @@ USER_DATA_FILE = Path("user_data.json")
 
 
 def initialize_posthog():
-    """
-    Initialize PostHog telemetry with user consent handling.
-    Returns (PostHog client, user_id) if telemetry is enabled and reachable,
-    otherwise (None, user_id).
-    """
-    # Retrieve or create user ID and existing consent flag
     user_id, telemetry_enabled = get_or_create_user_data()
 
-    # If it's the first run, ask for consent and save it
     if telemetry_enabled is None:
         telemetry_enabled = ask_for_consent()
         save_user_data(user_id, telemetry_enabled)
@@ -51,7 +41,6 @@ def initialize_posthog():
             sync_mode=True,
         )
 
-        # Send a single 'app_started' event with the user ID (uuid)
         try:
             posthog_client.capture(distinct_id=user_id, event="app_started")
             logger.debug("Successfully sent initial telemetry event")
@@ -66,19 +55,12 @@ def initialize_posthog():
 
 
 def get_or_create_user_data():
-    """
-    Retrieve or create user ID and telemetry preference.
-    Returns (user_id, telemetry_enabled) where telemetry_enabled is:
-      - True/False from saved preference
-      - None if no preference saved yet
-    """
     try:
         if USER_DATA_FILE.exists():
             with open(USER_DATA_FILE, "r") as f:
                 data = json.load(f)
                 return data.get("user_id"), data.get("telemetry_enabled")
         else:
-            # Generate a fresh UUID for this user
             user_id = str(uuid.uuid4())
             return user_id, None
     except Exception as e:
@@ -87,7 +69,6 @@ def get_or_create_user_data():
 
 
 def save_user_data(user_id, telemetry_enabled):
-    """Save user ID and telemetry preference to file"""
     try:
         with open(USER_DATA_FILE, "w") as f:
             json.dump({"user_id": user_id, "telemetry_enabled": telemetry_enabled}, f)
@@ -98,7 +79,6 @@ def save_user_data(user_id, telemetry_enabled):
 
 
 def ask_for_consent():
-    """Ask the user for telemetry consent via terminal prompt"""
     print("Would you allow the app to send anonymous usage statistics?")
     print(
         "This only sends a random ID when the app starts to help me analyze how many people are using ChemiNotify (purely for stats purposes)."

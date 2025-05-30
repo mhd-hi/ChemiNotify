@@ -1,4 +1,5 @@
 import ctypes
+import socket
 
 from utils.file_utils import cleanup_old_screenshots
 
