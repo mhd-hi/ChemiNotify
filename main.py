@@ -1,5 +1,7 @@
 import ctypes
 
+from utils.file_utils import cleanup_old_screenshots
+
 DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 = -4
 try:
     ctypes.windll.user32.SetProcessDpiAwarenessContext(
@@ -32,7 +34,9 @@ from utils.logging_config import configure_logging
 
 required_files = {
     "JNLP file": os.getenv("CHEMINOT_FILE_PATH"),
-    "Tesseract executable": os.getenv("TESSERACT_CMD", "C:\\Program Files\\Tesseract-OCR\\tesseract.exe"),
+    "Tesseract executable": os.getenv(
+        "TESSERACT_CMD", "C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
+    ),
 }
 missing = [
     name
@@ -52,6 +56,8 @@ def main():
         sys.exit(1)
 
     try:
+        cleanup_old_screenshots(days=7)
+
         SESSION_DURATION_MINUTES = int(os.getenv("SESSION_DURATION_MINUTES", 32))
 
         while True:

@@ -19,7 +19,7 @@ class ConsultationState(AppState):
             window=consultation_window,
             coords=tab_coords,
             element_name="CONSULTATION_TAB",
-            expected_colors=active_colors
+            expected_colors=active_colors,
         )
 
         if tab_is_active:

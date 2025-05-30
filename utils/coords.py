@@ -37,7 +37,7 @@ def _scale_for_window(hwnd, logical_point, state_name):
 
 def click(logical_point, window=None, state_name="LE_CHEMINOT"):
     """
-    Click at logical client-relative point inside `window` 
+    Click at logical client-relative point inside `window`
     (default state_name="LE_CHEMINOT"). Uses REF_SIZES to scale.
     """
     if window is None:
@@ -105,9 +105,11 @@ def is_pixel_color_match(
     from utils.file_utils import save_file
 
     if expected_colors is None or len(expected_colors) == 0:
-        logger.error(f"No expected colors provided for '{element_name}'. Cannot perform color matching.")
+        logger.error(
+            f"No expected colors provided for '{element_name}'. Cannot perform color matching."
+        )
         return False
-        
+
     for attempt in range(1, max_attempts + 1):
         try:
             if window:
@@ -115,6 +117,7 @@ def is_pixel_color_match(
                 time.sleep(0.2)
 
             from utils.coords import pixel
+
             pixel_color = pixel(coords, window=window)
 
             is_match = pixel_color in expected_colors
@@ -132,8 +135,8 @@ def is_pixel_color_match(
                 logger.warning(
                     f"Attempt {attempt}/{max_attempts}: Pixel color {pixel_color} doesn't match any expected colors: {expected_colors}"
                 )
-                    
-                # Screenshot for debugging if the pixel color does not match    
+
+                # Screenshot for debugging if the pixel color does not match
                 if attempt == max_attempts:
                     try:
                         img = screenshot(
@@ -165,7 +168,7 @@ def is_pixel_color_match(
                 time.sleep(retry_delay)
             else:
                 return False
-    
+
     logger.error(
         f"Pixel at {coords} for '{element_name}' did not match expected colors after {max_attempts} attempts."
     )

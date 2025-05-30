@@ -1,6 +1,8 @@
 import os
 import time
-from typing import Optional
+import glob
+import datetime
+from typing import Optional, List
 from utils.logging_config import configure_logging
 
 logger = configure_logging(__name__)
@@ -66,3 +68,52 @@ def save_file(
         if filepath:
             logger.error(f"Error occurred while saving to: {filepath}")
         return None
+
+
+def cleanup_old_screenshots(
+    days: int = 7, directories: Optional[List[str]] = None
+) -> int:
+    """
+    Delete screenshot files older than the specified number of days.
+
+    Args:
+        days: Number of days to keep files (older files will be deleted)
+        directories: List of directories to clean (defaults to all screenshot directories)
+
+    Returns:
+        Number of files deleted
+    """
+    if directories is None:
+        directories = [
+            "logs/screenshots",
+            "logs/ocr_screenshots",
+            "logs/pixel_screenshots",
+        ]
+
+    current_time = time.time()
+    max_age = days * 24 * 60 * 60  # Convert days to seconds
+    deleted_count = 0
+
+    logger.info(f"Cleaning up screenshots older than {days} days...")
+
+    for directory in directories:
+        if not os.path.exists(directory):
+            logger.debug(f"Directory doesn't exist, skipping: {directory}")
+            continue
+
+        # Get all PNG files in the directory
+        pattern = os.path.join(directory, "*.png")
+        files = glob.glob(pattern)
+
+        for file_path in files:
+            file_age = current_time - os.path.getmtime(file_path)
+            if file_age > max_age:
+                try:
+                    os.remove(file_path)
+                    deleted_count += 1
+                    logger.debug(f"Deleted old screenshot: {file_path}")
+                except Exception as e:
+                    logger.warning(f"Failed to delete {file_path}: {str(e)}")
+
+    logger.info(f"Cleanup completed: {deleted_count} files deleted")
+    return deleted_count
