@@ -1,7 +1,9 @@
 from enum import Enum
 
+
 class StateType(Enum):
     """Enum representing all possible application states"""
+
     INITIAL = "INITIAL"
     LOGIN = "LOGIN"
     CONSULTATION = "CONSULTATION"
@@ -10,6 +12,6 @@ class StateType(Enum):
     HORAIRE = "HORAIRE"
     EXIT = "EXIT"
     ERROR = "ERROR"
-    
+
     def __str__(self) -> str:
         return self.value

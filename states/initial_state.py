@@ -6,11 +6,16 @@ import win32con
 from utils.popup_detector import PopupDetector
 from .base import AppState
 from .state_types import StateType
-from utils.constants.texts import EXEMPTED_WINDOW_TITLES, UNWANTED_WINDOW_TITLES, WINDOW_TITLES
+from utils.constants.texts import (
+    EXEMPTED_WINDOW_TITLES,
+    UNWANTED_WINDOW_TITLES,
+    WINDOW_TITLES,
+)
+
 
 class InitialState(AppState):
     """Initial state - starts fresh by closing any unwanted windows and launching the app"""
-    
+
     def detect(self) -> bool:
         # Always start here
         return True
@@ -46,7 +51,7 @@ class InitialState(AppState):
         self._cleanup_unwanted_windows()
 
         # Launch the JNLP application using environment variable
-        jnlp_path = os.getenv('JNLP_PATH')
+        jnlp_path = os.getenv("JNLP_PATH")
         if not jnlp_path:
             self.logger.error("Environment variable JNLP_PATH is not set")
             raise RuntimeError("Missing JNLP_PATH environment variable")
@@ -59,7 +64,7 @@ class InitialState(AppState):
         time.sleep(3)
 
         # Focus the newly opened window
-        app_titles = WINDOW_TITLES['LOGIN_TITLE_BAR']
+        app_titles = WINDOW_TITLES["LOGIN_TITLE_BAR"]
         self.logger.info("Attempting to locate and focus the Cheminot window...")
         window = self.ensure_window_focus(app_titles)
         if window:

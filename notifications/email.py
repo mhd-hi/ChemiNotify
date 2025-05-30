@@ -1,12 +1,9 @@
-import os
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 
 from .base import NotificationChannel
 
 load_dotenv()
+
 
 class EmailNotification(NotificationChannel):
     """
@@ -17,5 +14,5 @@ class EmailNotification(NotificationChannel):
         super().__init__()
 
     def send(self, subject: str, body: str) -> bool:
-        # todo: implement email logic
+        # implement email logic
         return True

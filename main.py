@@ -2,7 +2,9 @@ import ctypes
 
 DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 = -4
 try:
-    ctypes.windll.user32.SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2)
+    ctypes.windll.user32.SetProcessDpiAwarenessContext(
+        DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2
+    )
 except (AttributeError, OSError):
     try:
         ctypes.windll.shcore.SetProcessDpiAwareness(2)
@@ -29,12 +31,17 @@ from states.state_types import StateType
 from utils.logging_config import configure_logging
 
 required_files = {
-    'JNLP file': os.getenv('JNLP_PATH'),
-    'Tesseract executable': os.getenv('TESSERACT_CMD'),
+    "JNLP file": os.getenv("JNLP_PATH"),
+    "Tesseract executable": os.getenv("TESSERACT_CMD"),
 }
-missing = [name for name, path in required_files.items() if not path or not os.path.isfile(path)]
+missing = [
+    name
+    for name, path in required_files.items()
+    if not path or not os.path.isfile(path)
+]
 
-pytesseract.pytesseract.tesseract_cmd = os.getenv('TESSERACT_CMD')
+pytesseract.pytesseract.tesseract_cmd = os.getenv("TESSERACT_CMD")
+
 
 def main():
     logger = configure_logging("Main")
@@ -43,29 +50,31 @@ def main():
     if missing:
         logger.error(f"Missing files: {', '.join(missing)}")
         sys.exit(1)
-    
+
     try:
-        SESSION_DURATION_MINUTES = int(os.getenv('SESSION_DURATION_MINUTES', 32))
-    
+        SESSION_DURATION_MINUTES = int(os.getenv("SESSION_DURATION_MINUTES", 32))
+
         while True:
             # Fresh state instances each session
             states = {
-                StateType.INITIAL:        InitialState(),
-                StateType.LOGIN:          LoginState(),
-                StateType.CONSULTATION:   ConsultationState(),
-                StateType.INSCRIPTION:    InscriptionState(),
+                StateType.INITIAL: InitialState(),
+                StateType.LOGIN: LoginState(),
+                StateType.CONSULTATION: ConsultationState(),
+                StateType.INSCRIPTION: InscriptionState(),
                 StateType.SELECTION_COURS: SelectionCoursState(),
-                StateType.HORAIRE:        HoraireState(),
-                StateType.EXIT:           ExitState(),
+                StateType.HORAIRE: HoraireState(),
+                StateType.EXIT: ExitState(),
             }
 
             manager = StateManager(
                 states=states,
                 initial_state=StateType.INITIAL,
-                session_timeout=SESSION_DURATION_MINUTES * 60
+                session_timeout=SESSION_DURATION_MINUTES * 60,
             )
 
-            logger.info(f"-> Starting new session of up to {SESSION_DURATION_MINUTES} minutes")
+            logger.info(
+                f"-> Starting new session of up to {SESSION_DURATION_MINUTES} minutes"
+            )
             manager.run()
 
             logger.info("Session ended (timeout or terminal). Restarting in 5 seconds…")
@@ -75,6 +84,7 @@ def main():
         logger.info("Interrupted by user, shutting down.")
     finally:
         logger.info("=== ChemiNotify Finished ===")
+
 
 if __name__ == "__main__":
     main()

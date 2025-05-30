@@ -11,6 +11,7 @@ from utils.window_helpers import list_window_titles, wait_for_new_window
 from utils.coords import click, is_pixel_color_match
 from utils.screenshot import screenshot
 
+
 class SelectionCoursState(AppState):
     def detect(self) -> bool:
         """
@@ -21,14 +22,14 @@ class SelectionCoursState(AppState):
         window = self.ensure_window_focus(["Le ChemiNot"])
         if not window:
             return False
-        
+
         return is_pixel_color_match(
             window=window,
-            coords=TABS['SELECTION_COURS'],
+            coords=TABS["SELECTION_COURS"],
             element_name="SELECTION_COURS_TAB",
-            expected_colors=COLORS['SELECTION_COURS'],
-            logger=self.logger if hasattr(self, 'logger') else None,
-            tolerance=20
+            expected_colors=COLORS["SELECTION_COURS"],
+            logger=self.logger if hasattr(self, "logger") else None,
+            tolerance=20,
         )
 
     def handle(self) -> StateType:
@@ -39,15 +40,17 @@ class SelectionCoursState(AppState):
             self.logger.warning("Could not focus course selection window")
 
         self.logger.info("Switching to SELECTION_COURS tab")
-        click(TABS['SELECTION_COURS'])
+        click(TABS["SELECTION_COURS"])
         time.sleep(1)
 
-        course_code = os.getenv('TRACKING_COURSE_CODE', 'GTI611')
+        course_code = os.getenv("TRACKING_COURSE_CODE", "GTI611")
         if course_code:
             course_code = course_code.upper()
         else:
-            self.logger.error("TRACKING_COURSE_CODE environment variable not set, using default")
-            course_code = 'GTI611'
+            self.logger.error(
+                "TRACKING_COURSE_CODE environment variable not set, using default"
+            )
+            course_code = "GTI611"
 
         # Coordinates of the course button
         coords = COURSE_SELECTION_COORDS.get(course_code)
@@ -63,11 +66,7 @@ class SelectionCoursState(AppState):
         if window:
             ignore_set.add(window.title)
 
-        new_title = wait_for_new_window(
-            before,
-            timeout=1.5,
-            ignore=ignore_set
-        )
+        new_title = wait_for_new_window(before, timeout=1.5, ignore=ignore_set)
 
         if new_title:
             self.logger.info(f"-> Detected popup: '{new_title}'")
@@ -85,12 +84,14 @@ class SelectionCoursState(AppState):
                 popup.close()
                 self.logger.info("-> Closed popup window cleanly")
             except Exception:
-                pyautogui.hotkey('alt', 'f4')
+                pyautogui.hotkey("alt", "f4")
                 self.logger.info("-> Closed popup window with Alt+F4")
 
             # If course is full, wait and retry
             if "complets" in text or "annulations" in text:
-                retry_wait_min = float(os.getenv('COURSE_NOT_AVAILABLE_RETRY_WAIT_MINUTES', 10))
+                retry_wait_min = float(
+                    os.getenv("COURSE_NOT_AVAILABLE_RETRY_WAIT_MINUTES", 10)
+                )
                 wait_secs = retry_wait_min * 60
 
                 self.logger.info(
@@ -99,7 +100,9 @@ class SelectionCoursState(AppState):
                 time.sleep(wait_secs)
                 return StateType.SELECTION_COURS
             else:
-                self.logger.warning("Popup was not a 'course full' message, proceeding.")
+                self.logger.warning(
+                    "Popup was not a 'course full' message, proceeding."
+                )
 
                 self.take_screenshot("popup_debug")
 
