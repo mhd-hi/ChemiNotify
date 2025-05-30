@@ -23,7 +23,7 @@ def take_debug_screenshot(name: str, directory: str = "logs/screenshots") -> str
     Returns:
         Path to the saved screenshot or None if not in DEBUG mode
     """
-    if os.getenv("LOG_LEVEL", "").upper() != "DEBUG":
+    if os.getenv("LOG_LEVEL", "INFO").upper() != "DEBUG":
         return None
 
     try:
