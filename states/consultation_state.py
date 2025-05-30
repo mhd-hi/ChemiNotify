@@ -1,27 +1,46 @@
 import time
 import pygetwindow as gw
+import os
 
 from .base import AppState
-from utils.coords import click
-from utils.constants.button_coords import TABS
+from utils.coords import click, is_pixel_color_match
+from utils.constants.button_coords import TABS, COLORS
 
 class ConsultationState(AppState):
     """Handles the main consultation screen after login"""
     
     def detect(self) -> bool:
-        consultation_windows = gw.getWindowsWithTitle("CONSULTATION")
-        if consultation_windows:
-            self.logger.info("Consultation state detected via 'CONSULTATION' in title")
-            return True
-        # TODO: Double-check the color of the tab
-        self.logger.info("Consultation state not detected")
-        return False
+        consultation_window = self.ensure_window_focus(["Le ChemiNot"])
+        if not consultation_window:
+            return False
 
+        tab_coords = TABS['CONSULTATION']
+        active_colors = COLORS['CONSULTATION']
+        
+        tab_is_active = is_pixel_color_match(
+            window=consultation_window,
+            coords=tab_coords, 
+            element_name="CONSULTATION_TAB", 
+            expected_colors=active_colors,
+            logger=self.logger
+        )
+        
+        if tab_is_active:
+            self.logger.info("Consultation state detected - consultation tab is active")
+            return True
+        else:
+            self.logger.info("Consultation window found but consultation tab is not active")
+            return False
+            
     def handle(self) -> str:
         self.logger.info("Handling consultation state")
         
-        # Ensure window focus
-        window = self.ensure_window_focus(["CONSULTATION", "ChemiNot", "Cheminot"])
+        window = self.ensure_window_focus(["Le ChemiNot"])
+        from utils.window_helpers import list_window_titles
+        all_windows = list_window_titles()
+        self.logger.info(f"Current windows: {all_windows}")
+            
+
         if not window:
             self.logger.warning("Could not focus consultation window, attempting to continue")
         

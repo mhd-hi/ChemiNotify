@@ -4,13 +4,12 @@ import pyautogui
 import pygetwindow as gw
 import win32gui
 
-from utils.coords import _client_to_screen, _scale_for_window
 from utils.constants.button_coords import REF_WINDOW_SIZES
 from utils.logging_config import configure_logging
+from utils.file_utils import save_file
 
 logger = configure_logging(__name__)
 
-@DeprecationWarning
 def take_debug_screenshot(name: str, directory: str = "logs/screenshots") -> str | None:
     """
     Takes a screenshot of the current screen and saves it with timestamp
@@ -26,24 +25,11 @@ def take_debug_screenshot(name: str, directory: str = "logs/screenshots") -> str
     if os.getenv('LOG_LEVEL', '').upper() != 'DEBUG':
         return None
     
-    filepath = None
     try:
-        # Create directory if it doesn't exist
-        os.makedirs(directory, exist_ok=True)
-        
-        # Generate filename with timestamp
-        timestamp = time.strftime("%Y%m%d-%H%M%S")
-        filename = f"{timestamp}_{name}.png"
-        filepath = os.path.join(directory, filename)
-        
-        take_screenshot = screenshot()
-        take_screenshot.save(filepath)
-        logger.debug(f"Debug screenshot saved: {filepath}")
-        return filepath
+        img = screenshot()
+        return save_file(img, name, directory=directory)
     except Exception as e:
         logger.error(f"Error taking debug screenshot: {str(e)}")
-        if filepath:
-            logger.error(f"Error occurred while saving to: {filepath}")
         return None
 
 def screenshot(region=None, window=None, state_name="LE_CHEMINOT"):
@@ -59,6 +45,9 @@ def screenshot(region=None, window=None, state_name="LE_CHEMINOT"):
 
     # Case A: logical region + window to scale & crop
     if window and region:
+        # Import here to avoid circular import
+        from utils.coords import _client_to_screen, _scale_for_window
+        
         hwnd = window._hWnd
         x, y, w, h = region
 

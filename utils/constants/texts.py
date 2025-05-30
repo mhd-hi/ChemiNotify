@@ -2,7 +2,7 @@ WINDOW_TITLES = {
     'LOGIN_TITLE_BAR': ['Bienvenue sur ChemiNot']    
 }
 UNWANTED_WINDOW_TITLES = ['cheminot', 'à propos de ', 'Attention']
-EXEMPTED_WINDOW_TITLES = ['visual studio code', 'vs code']  # needed to code this app lol
+EXEMPTED_WINDOW_TITLES = ['Visual Studio Code', 'visual studio code', 'vs code', 'ChemiNotify - Visual Studio Code']  # needed to code this app lol
 
 # Empty text means match any text
 # Empty list means match any title
@@ -35,7 +35,7 @@ POPUP_SESSION_SELECTION = {
     'title': ['ChemiNot'],
     'text': ['Pour quelle session voulez-vous'], # Pour quelle session voulez-vous modifier votre choix de cours ?
     'return_value': 'session_selection',
-    'action': 'click_ok'
+    'action': 'alt_f4'
 }
 
 POPUP_ATTENTION = {

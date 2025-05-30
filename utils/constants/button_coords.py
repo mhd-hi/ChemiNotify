@@ -9,10 +9,21 @@ LOGIN_STATE_COORDS = {
     'LOGIN_BUTTON': (314, 45),  
 }
 
+COLORS = {
+    'CONSULTATION': [(0, 0, 144), (255, 255, 0)],
+    'INSCRIPTION_SESSION': [(0, 0, 144), (255, 255, 0)],
+    'SELECTION_COURS': [(0, 0, 144), (255, 255, 255)],
+    'HORAIRE': [(0, 0, 144), (255, 255, 255)],
+    
+    'COURSE_AVAILABLE': [(0, 0, 0)],  # Black
+    'COURSE_UNAVAILABLE': [(192, 192, 192)],  # Gray (C0C0C0)
+}
+
 TABS = {
-    'INSCRIPTION_SESSION': (230, 6),
-    'SELECTION_COURS': (63, 27),
-    'HORAIRE': (167, 27),
+    'CONSULTATION': (109, 6),
+    'INSCRIPTION_SESSION': (228,7),
+    'SELECTION_COURS': (75, 29),
+    'HORAIRE': (166,30),
     'QUITTER': (549, 5),
 }
 

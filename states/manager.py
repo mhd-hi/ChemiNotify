@@ -66,6 +66,27 @@ class StateManager:
 
             current_state = self.states[self.current_state_name]
 
+            # Check detect method before handling state
+            try:
+                if not current_state.detect():
+                    self.logger.error(f"Could not detect state '{self.current_state_name}', transitioning to EXIT")
+                    self.take_error_screenshot(f"detection_failed_{self.current_state_name}")
+
+                    self.logger.info("Transitioning to EXIT state")
+                    self.current_state_name = "EXIT"
+                    current_state = self.states["EXIT"]
+            except Exception as e:
+                self.logger.error(f"Error in detect() for state {self.current_state_name}: {e}")
+                self.take_error_screenshot(f"detect_exception_{self.current_state_name}")
+                # If detection errors out, also go to EXIT
+                if "EXIT" in self.states:
+                    self.logger.info("Detection error, transitioning to EXIT state")
+                    self.current_state_name = "EXIT"
+                    current_state = self.states["EXIT"]
+                else:
+                    self.logger.error("No EXIT state defined, terminating state machine")
+                    break
+
             try:
                 self.logger.info(f"Executing {self.current_state_name} handler...")
                 next_state = current_state.handle()
@@ -82,9 +103,11 @@ class StateManager:
                 break
 
             self.logger.info(f"{'='*4}\nTransitioning to new state: {next_state}\n{'='*4}")
+            
+            if self.current_state_name == "LOGIN" and next_state == "CONSULTATION":
+                time.sleep(2.0)
+                
             self.current_state_name = next_state
-
-            # Small delay between states
+            
             time.sleep(1)
-
         self.logger.info("=== State machine execution complete ===")

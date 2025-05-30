@@ -1,18 +1,27 @@
 import os
 import time
-import pygetwindow as gw
 
 from .base import AppState
 from notifications.discord import DiscordNotification
-from utils.coords import moveTo, pixel, click
-from utils.constants.button_coords import HORAIRE_STATE_COORDS, TABS
+from utils.coords import moveTo, pixel, click, is_pixel_color_match
+from utils.constants.button_coords import COLORS, HORAIRE_STATE_COORDS, TABS
 from utils.screenshot import screenshot
+from utils.file_utils import save_file
 
 class HoraireState(AppState):
-    """Handles the schedule/horaire view screen"""
-
     def detect(self) -> bool:
-        return bool(gw.getWindowsWithTitle("CONSULTATION"))  # TODO: Double-check the color of the tab
+        window = self.ensure_window_focus(["Le ChemiNot"])
+        if not window:
+            return False
+        
+        return is_pixel_color_match(
+            window=window,
+            coords=TABS['HORAIRE'],
+            element_name="HORAIRE_TAB",
+            expected_colors=COLORS['HORAIRE'],
+            logger=self.logger if hasattr(self, 'logger') else None,
+            tolerance=20
+        )
 
     def _schedule_retry(self, minutes: float) -> str:
         """Helper to log, switch tab, sleep, and return to course selection."""
@@ -39,28 +48,16 @@ class HoraireState(AppState):
             return None
             
         try:
-            state_name = self.__class__.__name__.replace("State", "")
-            name = f"{state_name}"
-            if name_suffix:
-                name = f"{name}_{name_suffix}"
-                
-            timestamp = time.strftime("%Y%m%d-%H%M%S")
-            filename = f"{timestamp}_{name}.png"
-            filepath = os.path.join("logs/screenshots", filename)
-            
-            # Ensure directory exists
-            os.makedirs("logs/screenshots", exist_ok=True)
-            
             import win32gui
+            
+            state_name = self.__class__.__name__.replace("State", "")
+            
             hwnd = window._hWnd
             left, top, right, bottom = win32gui.GetClientRect(hwnd)
             width, height = right - left, bottom - top
             
             img = screenshot(region=(0, 0, width, height), window=window)
-            img.save(filepath)
-            
-            self.logger.debug(f"Window screenshot saved: {filepath}")
-            return filepath
+            return save_file(img, state_name, suffix=name_suffix)
         except Exception as e:
             self.logger.error(f"Error taking window screenshot: {str(e)}")
             return None
@@ -68,29 +65,29 @@ class HoraireState(AppState):
     def handle(self) -> str:
         self.logger.info("Handling HoraireState: checking course availability")
 
-        window = self.ensure_window_focus(["CONSULTATION", "ChemiNot", "Cheminot"])
+        window = self.ensure_window_focus(["Le ChemiNot"])
         if not window:
             self.logger.warning("Could not focus horaire window, but continuing")
             self.take_error_screenshot("no_window_found")
 
-        # Take screenshot
         screenshot_path = self._take_window_screenshot(window, "before_pixel_check")
 
         logical_pt = HORAIRE_STATE_COORDS['GROUP_COURSE_BLACK_PIXEL']
         moveTo(logical_pt, window=window, duration=0.1)
         time.sleep(0.1)
 
-        try:
-            r, g, b = pixel(logical_pt, window=window)
-        except Exception as e:
-            self.logger.error(f"Error accessing pixel: {e}")
-            self.take_error_screenshot("pixel_check_failed")
-            return "EXIT"
-
         course_code = os.getenv('TRACKING_COURSE_CODE', 'GTI611').upper()
         base_retry_min = float(os.getenv('COURSE_NOT_AVAILABLE_RETRY_WAIT_MINUTES', 10))
 
-        if (r, g, b) == (0, 0, 0): 
+        # Check if course is available using is_pixel_color_match with colors from COLORS constant
+        if is_pixel_color_match(
+            window=window, 
+            coords=logical_pt, 
+            element_name="COURSE_AVAILABLE", 
+            expected_colors=COLORS['COURSE_AVAILABLE'],
+            logger=self.logger,
+            tolerance=10
+        ):
             # BLACK pixel means course is available
             self.logger.info(f"{course_code} is available (pixel is black) - sending notification")
             
@@ -102,16 +99,29 @@ class HoraireState(AppState):
             discord_notifier = DiscordNotification()
             discord_notifier.send(subject, body, screenshot_path)
             return self._schedule_retry(base_retry_min * 2)
-        elif (r, g, b) == (192, 192, 192):
+        elif is_pixel_color_match(
+            window=window, 
+            coords=logical_pt, 
+            element_name="COURSE_UNAVAILABLE", 
+            expected_colors=COLORS['COURSE_UNAVAILABLE'],
+            logger=self.logger,
+            tolerance=15  # Slightly higher tolerance for gray
+        ):
             # NOT available - retry after base interval
             self.logger.info(f"{course_code} not available (pixel is gray C0C0C0) - retrying in {base_retry_min}m")
             return self._schedule_retry(base_retry_min)
         else:
-            discord_notifier = DiscordNotification()
-            discord_notifier.send("ERROR: unexpected_pixel_color", 
-                                  "RGB: " + str((r, g, b)), 
-                                  screenshot_path)
-            self.logger.error(f"Unexpected pixel color: RGB({r}, {g}, {b})")
-            # Still retry after normal interval to keep the program running
+            # Unexpected color - get the actual color for the error message
+            try:
+                r, g, b = pixel(logical_pt, window=window)
+                discord_notifier = DiscordNotification()
+                discord_notifier.send("ERROR: unexpected_pixel_color", 
+                                    "RGB: " + str((r, g, b)), 
+                                    screenshot_path)
+                self.logger.error(f"Unexpected pixel color: RGB({r}, {g}, {b})")
+            except Exception as e:
+                self.logger.error(f"Error accessing pixel: {e}")
+                self.take_error_screenshot("pixel_check_failed")
+                
             self.logger.info(f"Continuing with normal retry interval of {base_retry_min}m")
             return self._schedule_retry(base_retry_min)

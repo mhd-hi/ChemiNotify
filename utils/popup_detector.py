@@ -1,7 +1,5 @@
 import os
-import re
 import time
-import unicodedata
 import pyautogui
 import pygetwindow as gw
 from typing import Optional, Tuple, Set, Callable, Any
@@ -106,17 +104,10 @@ class PopupDetector:
         """
         Capture text content from a popup window using OCR.
         Requires pytesseract to be properly configured.
-        
-        Args:
-            popup_window: Window object to capture
-            
-        Returns:
-            Text content of the popup or None if capture failed
         """
         try:
             import pytesseract
-            import os
-            from datetime import datetime
+            from utils.file_utils import save_file
             
             if popup_window is None:
                 self.logger.error("Cannot capture text from None window")
@@ -147,14 +138,16 @@ class PopupDetector:
 
             # Save the screenshot only for unrecognized popups
             if not popup_recognized:
-                debug_dir = os.path.join("logs", "ocr_screenshots")
-                os.makedirs(debug_dir, exist_ok=True)
-                timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
                 window_title = popup_window.title if hasattr(popup_window, 'title') else "unknown"
                 # Sanitize filename
                 window_title = "".join(c if c.isalnum() or c in " -_" else "_" for c in window_title)
-                screenshot_path = os.path.join(debug_dir, f"{timestamp}_{window_title}.png")
-                popup_img.save(screenshot_path)
+                
+                # Use the save_file utility
+                screenshot_path = save_file(
+                    popup_img,
+                    window_title,
+                    directory="logs/ocr_screenshots"
+                )
                 self.logger.debug(f"Saved unrecognized popup screenshot to: {screenshot_path}")
 
             if trimmed_text:
@@ -259,59 +252,69 @@ class PopupDetector:
                 self.logger.error(f"Failed to close popup with Alt+F4: {e2}")
                 self.logger.debug(f"Alt+F4 failure details: {str(e2)}")
     
-    def detect_and_handle_active_popups(self) -> Optional[str]:
+    def detect_and_handle_active_popups(self):
         """
-        Detect and handle any active popups that might be present on screen.
-        
-        This method can be called from any state to detect and handle popups
-        without having to duplicate popup handling logic.
-        
-        Returns:
-            str: The type of popup that was handled, or None if no popup was found
+        Detect and handle any currently active popups.
         """
         self.logger.debug("Scanning for active popups...")
+
+        # Skip these window titles when looking for popups to handle
+        skip_titles = {'Program Manager', 'Windows Input Experience'}
         
-        # Get all active windows that might be popups
+        # Add critical application windows that should never be closed automatically
+        protected_titles = {'Bienvenue sur ChemiNot', 'Le ChemiNot'}
+        
         for window in gw.getAllWindows():
-            if not window.visible or not window.title:
+            if not window.visible or not window.title.strip():
                 continue
                 
-            self.logger.debug(f"Checking window: '{window.title}' ({window.width}x{window.height})")
+            window_title = window.title
             
-            # Skip windows that are clearly not popups (too large)
-            if window.width > 800 and window.height > 800:
-                self.logger.debug(f"Skipping large window (window > 800): {window.width}x{window.height}")
+            # Skip windows in the skip list
+            if any(title in window_title for title in skip_titles):
                 continue
                 
-            # Ensure window is active and stable before capture
-            try:
-                window.activate()
-                time.sleep(0.3)
+            # Never close main application windows
+            if any(title in window_title for title in protected_titles):
+                self.logger.debug(f"Skipping protected window: '{window_title}'")
+                continue
                 
-                # Capture the text content of this potential popup
+            # Check if this looks like a popup (by size)
+            win_width, win_height = window.width, window.height
+            self.logger.debug(f"Checking window: '{window_title}' ({win_width}x{win_height})")
+            
+            if win_width > 800 or win_height > 600:
+                self.logger.debug(f"Skipping large window (window > 800): {win_width}x{win_height}")
+                continue
+                
+            # Only consider windows that look like popups
+            if win_width < 800 and win_height < 600:
+                # This is likely a popup, try to handle it
+                self.logger.debug(f"Found potential popup: '{window_title}' ({win_width}x{win_height})")
+                
+                # For session selection popups, don't close them automatically
+                if "ChemiNot" in window_title and "session" in window_title.lower():
+                    self.logger.info(f"Found session selection popup: '{window_title}', keeping open")
+                    continue
+                    
+                # Get popup text and determine popup type
                 popup_text = self.capture_popup_text(window)
+                popup_type = self.handle_standard_popups(window, popup_text, window_title)
                 
-                if popup_text:
-                    self.logger.debug(f"Found potential popup with text: '{popup_text[:50]}...'")
-                    
-                    # Try to handle it as a standard popup
-                    popup_type = self.handle_standard_popups(window, popup_text, window.title)
-                    
-                    if popup_type and popup_type != 'unknown':
-                        self.logger.info(f"Successfully handled active popup of type: {popup_type}")
-                        time.sleep(0.5)
-                        return popup_type
-            except Exception as e:
-                self.logger.warning(f"Error processing window '{window.title}': {e}")
-                continue
-                
-        self.logger.debug("No active popups found requiring handling")
-        return None
+                if popup_type and popup_type != POPUP_UNKNOWN_RETURN_VALUE:
+                    self.logger.info(f"Successfully handled popup of type: {popup_type}")
+                else:
+                    # If we can't determine the type but it's small enough to be a popup,
+                    # try to close it using the default method
+                    self.logger.debug(f"No matching popup type found, handling as unknown popup")
+                    self.close_popup(window)
+    
+        self.logger.debug("Popup scanning and handling complete")
     
     def click_ok_button(self, popup_window):
         """
         Click the OK button on a popup using the image in assets/ok_button
-    
+
         Args:
             popup_window: Window object containing the OK button
         """
@@ -321,7 +324,7 @@ class PopupDetector:
             return
         
         self.logger.debug(f"Attempting to click OK button on popup: {popup_window.title if hasattr(popup_window, 'title') else 'Unknown'}")
-    
+
         try:
             # Activate the window first
             popup_window.activate()
@@ -347,9 +350,12 @@ class PopupDetector:
                 ok_location = pyautogui.locateOnScreen(ok_button_path, confidence=0.7, region=region)
                 if ok_location:
                     x, y = pyautogui.center(ok_location)
-                    self.logger.debug(f"Found OK button at {x}, {y} - clicking")
-                    time.sleep(0.2)
-                    pyautogui.click(x, y)
+                    self.logger.debug(f"Found OK button at {x}, {y} - moving mouse to hover")
+                    # First hover over the button
+                    pyautogui.moveTo(x, y)
+                    time.sleep(0.5)  # Wait while hovering before clicking
+                    self.logger.debug("Clicking OK button after hover")
+                    pyautogui.click()
                     self.logger.info("Successfully clicked OK button")
                     time.sleep(0.5)  # Wait a moment after clicking
                     return

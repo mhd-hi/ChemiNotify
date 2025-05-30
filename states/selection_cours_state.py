@@ -5,19 +5,35 @@ import pytesseract
 import pyautogui
 
 from .base import AppState
-from utils.constants.button_coords import COURSE_SELECTION_COORDS, TABS
+from utils.constants.button_coords import COLORS, COURSE_SELECTION_COORDS, TABS
 from utils.window_helpers import list_window_titles, wait_for_new_window
-from utils.coords import click
+from utils.coords import click, is_pixel_color_match
 from utils.screenshot import screenshot
 
 class SelectionCoursState(AppState):
     def detect(self) -> bool:
-        return bool(gw.getWindowsWithTitle("CONSULTATION"))
+        """
+        Detects if the current state is the Selection Cours state by checking:
+        1. If the 'Le ChemiNot' window exists
+        2. If the Selection Cours tab has the expected color indicating it's active
+        """
+        window = self.ensure_window_focus(["Le ChemiNot"])
+        if not window:
+            return False
+        
+        return is_pixel_color_match(
+            window=window,
+            coords=TABS['SELECTION_COURS'],
+            element_name="SELECTION_COURS_TAB",
+            expected_colors=COLORS['SELECTION_COURS'],
+            logger=self.logger if hasattr(self, 'logger') else None,
+            tolerance=20
+        )
 
     def handle(self) -> str:
         self.logger.info("Handling course selection state")
 
-        window = self.ensure_window_focus(["CONSULTATION", "ChemiNot", "Cheminot"])
+        window = self.ensure_window_focus(["Le ChemiNot"])
         if not window:
             self.logger.warning("Could not focus course selection window")
 

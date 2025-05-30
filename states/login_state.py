@@ -22,11 +22,11 @@ class LoginState(AppState):
 
     def handle(self) -> str:
         self.logger.info("Handling login state")
-
-        window = self.ensure_window_focus(WINDOW_TITLES['LOGIN_TITLE_BAR'])
         
+        window = self.ensure_window_focus(WINDOW_TITLES['LOGIN_TITLE_BAR'])
         if not window:
-            self.logger.warning("Could not focus login window, attempting login anyway")
+            self.logger.warning("Could not focus login window, attempting to continue")
+            return "EXIT"
         
         # Load environment variables
         dotenv.load_dotenv()
@@ -72,12 +72,15 @@ class LoginState(AppState):
         time.sleep(0.5)
         click(LOGIN_STATE_COORDS['LOGIN_BUTTON'], window=window, state_name="LOGIN")
 
-        self.logger.info("Waiting for login to complete (3 seconds)")
-        time.sleep(2.0)
+        self.logger.info("Waiting for login to complete")
+        time.sleep(5.0)
 
         # Check for and handle any popups that might be active
         detector = PopupDetector()
         detector.detect_and_handle_active_popups()
-
+        
+        # Add extra wait time before transitioning to consultation state
+        time.sleep(2.0)
+        
         self.logger.info("Login complete, transitioning to consultation state")
         return "CONSULTATION"

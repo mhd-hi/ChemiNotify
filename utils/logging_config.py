@@ -15,9 +15,11 @@ def configure_logging(name="Main"):
     log_level = os.getenv('LOG_LEVEL', 'INFO').upper()
     numeric_level = getattr(logging, log_level, logging.INFO)
     
-    # Create base directories
+    # Create all necessary directories for the application
     os.makedirs("logs", exist_ok=True)
     os.makedirs("logs/screenshots", exist_ok=True)
+    os.makedirs("logs/ocr_screenshots", exist_ok=True)
+    os.makedirs("logs/pixel_screenshots", exist_ok=True)
     
     handlers = [
         logging.StreamHandler(),

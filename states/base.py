@@ -55,27 +55,48 @@ class AppState:
         return self.take_screenshot(f"ERROR_{error_name}")
     
     def ensure_window_focus(self, window_titles: List[str]) -> Optional[gw.Win32Window]:
-        """Ensure the application window has focus"""
+        """
+        Ensure the application window has focus.
+        Match if window title startswith or contains the expected string, case-insensitive.
+        """
         self.logger.debug("Ensuring window focus...")
         found_window = None
-        
-        # Try to find the window using the provided titles
+
+        # Get all window titles and log them (for debugging)
+        windows = gw.getAllWindows()
+        all_titles = [win.title for win in windows]
+        self.logger.info(f"Current windows: {set(all_titles)}")
+
         for title in window_titles:
-            self.logger.debug(f"Searching for window with title '{title}'")
-            windows = gw.getWindowsWithTitle(title)
-            if windows:
-                found_window = windows[0]
-                self.logger.debug(f"Found window with title '{windows[0].title}'")
+            self.logger.debug(f"Searching for window with title like '{title}'")
+            for win in windows:
+                # Use 'in' or startswith for fuzzy matching
+                if self.normalize(title) in self.normalize(win.title): # type: ignore
+                    found_window = win
+                    self.logger.debug(f"Found window with fuzzy match '{win.title}'")
+                    break
+            if found_window:
                 break
 
-        # If window found, activate it and ensure it's properly positioned
         if found_window:
             self.logger.debug("Found window, activating...")
             found_window.activate()
             time.sleep(0.1)
-            
             return found_window
 
         self.take_error_screenshot("window_focus_failed")
         self.logger.warning("Could not find application window")
         return None
+
+    @staticmethod
+    def normalize(txt: str) -> str:
+        """
+        Normalize text for window matching: lower, ascii, strip, collapse whitespace.
+        """
+        import unicodedata, re
+        if not txt:
+            return ''
+        txt = unicodedata.normalize('NFD', txt)
+        txt = txt.encode('ascii', 'ignore').decode('utf-8')
+        txt = re.sub(r'\s+', ' ', txt)
+        return txt.lower().strip()
