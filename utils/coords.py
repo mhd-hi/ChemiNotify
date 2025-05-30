@@ -1,9 +1,6 @@
-import time
 import win32gui
 import pyautogui
 import pygetwindow as gw
-from datetime import datetime
-import os
 
 from utils.constants.button_coords import REF_WINDOW_SIZES
 from utils.logging_config import configure_logging
@@ -40,8 +37,8 @@ def _scale_for_window(hwnd, logical_point, state_name):
 
 def click(logical_point, window=None, state_name="LE_CHEMINOT"):
     """
-    Click at logical client-relative point inside `window` (default
-    state_name="LE_CHEMINOT").  Uses REF_SIZES to scale.
+    Click at logical client-relative point inside `window` 
+    (default state_name="LE_CHEMINOT"). Uses REF_SIZES to scale.
     """
     if window is None:
         window = gw.getActiveWindow()
@@ -97,11 +94,9 @@ def is_pixel_color_match(
     expected_colors=None,
     max_attempts=3,
     retry_delay=0.5,
-    logger=None,
-    tolerance=20,
 ):
     """
-    Universal function to check if a pixel at given coordinates matches any of the expected colors.
+    Universal function to check if a pixel at given coordinates exactly matches any of the expected colors.
     Works for tabs, buttons, status indicators, or any pixel-based detection.
     """
     import time
@@ -109,47 +104,37 @@ def is_pixel_color_match(
     from utils.screenshot import screenshot
     from utils.file_utils import save_file
 
-    # Default to navy blue if no colors provided
-    if expected_colors is None:
-        expected_colors = [(0, 0, 128)]  # Navy blue RGB
-
+    if expected_colors is None or len(expected_colors) == 0:
+        logger.error(f"No expected colors provided for '{element_name}'. Cannot perform color matching.")
+        return False
+        
     for attempt in range(1, max_attempts + 1):
         try:
             if window:
                 window.activate()
                 time.sleep(0.2)
 
-            # Get the color at the specified coordinates
-            from utils.coords import pixel  # avoid circular import
-
+            from utils.coords import pixel
             pixel_color = pixel(coords, window=window)
 
-            # Check if the pixel color matches any of the expected colors
-            is_match = any(
-                abs(pixel_color[0] - color[0]) <= tolerance
-                and abs(pixel_color[1] - color[1]) <= tolerance
-                and abs(pixel_color[2] - color[2]) <= tolerance
-                for color in expected_colors
+            is_match = pixel_color in expected_colors
+
+            logger.debug(
+                f"Pixel at {coords} color: {pixel_color}, Expected one of: {expected_colors}"
             )
 
-            if logger:
-                logger.debug(
-                    f"Pixel at {coords} color: {pixel_color}, Expected one of: {expected_colors}"
-                )
-
             if is_match:
-                if logger:
-                    logger.debug(
-                        f"Pixel color matches one of the expected colors: {pixel_color}"
-                    )
+                logger.debug(
+                    f"Pixel color exactly matches one of the expected colors: {pixel_color}"
+                )
                 return True
             else:
-                if logger:
-                    logger.warning(
-                        f"Attempt {attempt}/{max_attempts}: Pixel color {pixel_color} doesn't match any expected colors: {expected_colors}"
-                    )
-                # Take a screenshot for debugging if color doesn't match (only on final attempt)
-                if attempt == max_attempts and logger:
+                logger.warning(
+                    f"Attempt {attempt}/{max_attempts}: Pixel color {pixel_color} doesn't match any expected colors: {expected_colors}"
+                )
+                    
+                # Screenshot for debugging if the pixel color does not match    
+                if attempt == max_attempts:
                     try:
                         img = screenshot(
                             region=(
@@ -163,7 +148,7 @@ def is_pixel_color_match(
                             save_file(
                                 img,
                                 f"{element_name}_color_mismatch",
-                                directory="logs/pixel_screenshots",
+                                directory="logs/screenshots",
                             )
                     except Exception as screenshot_err:
                         logger.error(
@@ -173,16 +158,15 @@ def is_pixel_color_match(
                 if attempt < max_attempts:
                     time.sleep(retry_delay)
         except Exception as e:
-            if logger:
-                logger.error(
-                    f"Error checking pixel color (attempt {attempt}/{max_attempts}): {e}"
-                )
+            logger.error(
+                f"Error checking pixel color (attempt {attempt}/{max_attempts}): {e}"
+            )
             if attempt < max_attempts:
                 time.sleep(retry_delay)
             else:
                 return False
-    if logger:
-        logger.error(
-            f"Pixel at {coords} for '{element_name}' did not match expected colors after {max_attempts} attempts."
-        )
+    
+    logger.error(
+        f"Pixel at {coords} for '{element_name}' did not match expected colors after {max_attempts} attempts."
+    )
     return False

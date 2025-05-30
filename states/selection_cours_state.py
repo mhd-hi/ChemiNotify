@@ -28,8 +28,6 @@ class SelectionCoursState(AppState):
             coords=TABS["SELECTION_COURS"],
             element_name="SELECTION_COURS_TAB",
             expected_colors=COLORS["SELECTION_COURS"],
-            logger=self.logger if hasattr(self, "logger") else None,
-            tolerance=20,
         )
 
     def handle(self) -> StateType:

@@ -19,12 +19,9 @@ class InscriptionState(AppState):
             coords=TABS["INSCRIPTION_SESSION"],
             element_name="INSCRIPTION_SESSION_TAB",
             expected_colors=COLORS["INSCRIPTION_SESSION"],
-            logger=self.logger if hasattr(self, "logger") else None,
-            tolerance=20,
         )
 
     def handle(self) -> StateType:
-        """Handle the inscription state"""
         self.logger.info("Handling inscription state")
 
         window = self.ensure_window_focus(["Le ChemiNot"])
@@ -33,20 +30,16 @@ class InscriptionState(AppState):
                 "Could not focus inscription window, attempting to continue"
             )
 
-        # Initialize popup detector
-        popup_detector = PopupDetector()
-
-        # Click on SELECTION_COURS tab and handle any popups
         self.logger.info("Clicking on SELECTION_COURS tab")
         selection_coords = TABS["SELECTION_COURS"]
 
+        popup_detector = PopupDetector()
         popup_detector.detect_popup(
             action=lambda: click(selection_coords),
             timeout=1.0,
             handle_automatically=True,
         )
 
-        # Ensure we check for any remaining popups before proceeding
         popup_detector.detect_and_handle_active_popups()
 
         time.sleep(1)

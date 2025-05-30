@@ -21,14 +21,6 @@ class DiscordNotification(NotificationChannel):
     def send(self, subject: str, body: str, image_path: Optional[str] = None) -> bool:
         """
         Send a Discord notification, optionally with an image attachment.
-
-        Args:
-            subject: The notification subject
-            body: The notification message body
-            image_path: Optional path to an image file to include
-
-        Returns:
-            True if successful, False otherwise
         """
         if not self.webhook_url:
             self.logger.warning("No webhook URL configured.")

@@ -15,7 +15,6 @@ class NotificationFacade:
             self._channels = channels
         else:
             self._channels = []
-            # Auto-register channels if ENV vars present
             if os.getenv("DISCORD_WEBHOOK_URL"):
                 self._channels.append(DiscordNotification())
 
@@ -29,6 +28,7 @@ class NotificationFacade:
         Returns a dict mapping channel class names to send status.
         """
         results = {}
+
         for channel in self._channels:
             name = channel.__class__.__name__
             results[name] = channel.send(subject, body)

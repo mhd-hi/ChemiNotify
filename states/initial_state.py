@@ -51,13 +51,13 @@ class InitialState(AppState):
         self._cleanup_unwanted_windows()
 
         # Launch the JNLP application using environment variable
-        jnlp_path = os.getenv("JNLP_PATH")
-        if not jnlp_path:
-            self.logger.error("Environment variable JNLP_PATH is not set")
-            raise RuntimeError("Missing JNLP_PATH environment variable")
+        cheminot_path = os.getenv("CHEMINOT_FILE_PATH")
+        if not cheminot_path:
+            self.logger.error("Environment variable CHEMINOT_FILE_PATH is not set")
+            raise RuntimeError("Missing CHEMINOT_FILE_PATH environment variable")
 
-        self.logger.info(f"Starting JNLP application from: {jnlp_path}")
-        os.startfile(jnlp_path)
+        self.logger.info(f"Starting JNLP application from: {cheminot_path}")
+        os.startfile(cheminot_path)
 
         # Wait for the app to load
         self.logger.info("Waiting for Java to launch the application (3 seconds)...")

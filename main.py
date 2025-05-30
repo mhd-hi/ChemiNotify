@@ -31,8 +31,8 @@ from states.state_types import StateType
 from utils.logging_config import configure_logging
 
 required_files = {
-    "JNLP file": os.getenv("JNLP_PATH"),
-    "Tesseract executable": os.getenv("TESSERACT_CMD"),
+    "JNLP file": os.getenv("CHEMINOT_FILE_PATH"),
+    "Tesseract executable": os.getenv("TESSERACT_CMD", "C:\\Program Files\\Tesseract-OCR\\tesseract.exe"),
 }
 missing = [
     name
