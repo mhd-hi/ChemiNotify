@@ -24,7 +24,7 @@ class StateManager:
 
     def take_error_screenshot(self, error_name: str = "state_manager_error"):
         """Takes a screenshot when an error occurs (only in DEBUG mode)"""
-        if os.getenv("LOG_LEVEL", "").upper() != "DEBUG":
+        if os.getenv("LOG_LEVEL", "INFO").upper() != "DEBUG":
             return None
 
         try:

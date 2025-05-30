@@ -42,7 +42,7 @@ class AppState(ABC):
         return StateType.EXIT
 
     def is_debug_mode(self) -> bool:
-        return os.getenv("LOG_LEVEL", "").upper() == "DEBUG"
+        return os.getenv("LOG_LEVEL", "INFO").upper() == "DEBUG"
 
     def take_screenshot(self, name_suffix: Optional[str] = None) -> Optional[str]:
         if not self.is_debug_mode():

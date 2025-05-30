@@ -83,7 +83,7 @@ def main():
             }
 
             manager = StateManager(
-                states=states,
+                states,
                 initial_state=StateType.INITIAL,
                 session_timeout=SESSION_DURATION_MINUTES * 60,
             )

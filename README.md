@@ -36,7 +36,7 @@ Invoke-WebRequest -Uri "https://github.com/tesseract-ocr/tessdata/raw/main/fra.t
 - Copy `.env.example` and rename it to `.env` 
 4. Edit the .env file with your specific settings (Cheminot credentials, course, file paths, [discord webhook](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks))
 
-4. Run the app
+5. Run the app
 ```
 python main.py
 ```
@@ -46,5 +46,5 @@ python main.py
 This tool is provided for personal use only. By using ChemiNotify, you agree to the following:
 
 - This tool runs entirely on your local machine and does not collect, store, or transmit any student data.
-- No personal information is shared with any third parties or remote servers except for anonymous telemetry (random UUID only) (if consented to) and the notifications you explicitly configure.
+- With your consent, the app sends anonymous usage data (a random UUID only) to help track how many people are using the tool.
 - This tool is not affiliated with or endorsed by any educational institution or the developers of the ChemiNot system.

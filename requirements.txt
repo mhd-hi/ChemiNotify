@@ -6,5 +6,5 @@ pywin32
 pytesseract
 requests
 Pillow
-dotenv
+python-dotenv
 posthog
