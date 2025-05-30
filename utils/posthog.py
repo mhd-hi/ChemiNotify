@@ -11,6 +11,8 @@ from posthog import Posthog
 logger = logging.getLogger(__name__)
 
 # Configuration
+
+# PostHog API key intended to be visible, since it's only used for sending events
 POSTHOG_API_KEY = "phc_1RDgY4dpBlUNYRdZKH2WlOAFydNZcrXfMFkIpKSONfU"
 POSTHOG_HOST = "https://us.i.posthog.com"
 USER_DATA_FILE = Path("user_data.json")
