@@ -1,17 +1,16 @@
 import time
 from .base import AppState
+from .state_types import StateType
 from utils.coords import click
 import pyautogui
 from utils.constants.button_coords import TABS
 from utils.constants.texts import WINDOW_TITLES
 
 class ExitState(AppState):
-    """Handles the application exit process, including closing the login window."""
-
     def detect(self) -> bool:
         return False
 
-    def handle(self) -> str:
+    def handle(self) -> StateType:
         self.logger.info("ExitState: starting clean-up...")
 
         window = self.ensure_window_focus(["Le ChemiNot"])
@@ -32,4 +31,4 @@ class ExitState(AppState):
             self.logger.warning("Login window not found; skipping Alt+F4")
 
         self.logger.info("ExitState: done, terminating state machine")
-        return ""
+        return StateType.EXIT

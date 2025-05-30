@@ -2,6 +2,7 @@ import os
 import pygetwindow as gw
 import time
 from typing import Optional, List, Union
+from .state_types import StateType
 
 from utils.logging_config import configure_logging
 from utils.screenshot import screenshot, take_debug_screenshot
@@ -21,12 +22,12 @@ class AppState:
         self.logger.warning("Detect method not implemented in AppState base class")
         return False
 
-    def handle(self) -> str:
+    def handle(self) -> StateType:
         """
         Handle the current state and return the next state name
         """
         self.logger.warning("Handle method not implemented in AppState base class")
-        return "EXIT"
+        return StateType.EXIT
 
     def is_debug_mode(self) -> bool:
         return os.getenv('LOG_LEVEL', '').upper() == 'DEBUG'

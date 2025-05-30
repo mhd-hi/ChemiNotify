@@ -25,6 +25,7 @@ from states.inscription_state import InscriptionState
 from states.selection_cours_state import SelectionCoursState
 from states.horaire_state import HoraireState
 from states.exit_state import ExitState
+from states.state_types import StateType
 from utils.logging_config import configure_logging
 
 required_files = {
@@ -49,18 +50,18 @@ def main():
         while True:
             # Fresh state instances each session
             states = {
-                "INITIAL":        InitialState(),
-                "LOGIN":          LoginState(),
-                "CONSULTATION":   ConsultationState(),
-                "INSCRIPTION":    InscriptionState(),
-                "SELECTION_COURS": SelectionCoursState(),
-                "HORAIRE":        HoraireState(),
-                "EXIT":           ExitState(),
+                StateType.INITIAL:        InitialState(),
+                StateType.LOGIN:          LoginState(),
+                StateType.CONSULTATION:   ConsultationState(),
+                StateType.INSCRIPTION:    InscriptionState(),
+                StateType.SELECTION_COURS: SelectionCoursState(),
+                StateType.HORAIRE:        HoraireState(),
+                StateType.EXIT:           ExitState(),
             }
 
             manager = StateManager(
-                states,
-                initial_state="INITIAL",
+                states=states,
+                initial_state=StateType.INITIAL,
                 session_timeout=SESSION_DURATION_MINUTES * 60
             )
 

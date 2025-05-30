@@ -2,6 +2,7 @@ import time
 import pygetwindow as gw
 
 from .base import AppState
+from .state_types import StateType
 from utils.constants.button_coords import COLORS, TABS
 from utils.coords import click, is_pixel_color_match
 from utils.popup_detector import PopupDetector
@@ -20,7 +21,8 @@ class InscriptionState(AppState):
             logger=self.logger if hasattr(self, 'logger') else None,
             tolerance=20
         )
-    def handle(self) -> str:
+        
+    def handle(self) -> StateType:
         """Handle the inscription state"""
         self.logger.info("Handling inscription state")
         
@@ -47,4 +49,4 @@ class InscriptionState(AppState):
         time.sleep(1)
         
         self.logger.info("Navigated to course selection, transitioning to selection course state")
-        return "SELECTION_COURS"
+        return StateType.SELECTION_COURS

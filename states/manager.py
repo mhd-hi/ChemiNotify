@@ -1,17 +1,18 @@
 import time
 import traceback
 import os
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 from utils.logging_config import configure_logging
 from .base import AppState
+from .state_types import StateType
 
 class StateManager:
     """Manages application states, transitions, and enforces a session timeout."""
 
     def __init__(
         self,
-        states: Dict[str, AppState],
-        initial_state: str = "INITIAL",
+        states: Dict[StateType, AppState],
+        initial_state: StateType = StateType.INITIAL,
         session_timeout: Optional[int] = None,  # in seconds
     ):
         self.states = states
@@ -19,7 +20,7 @@ class StateManager:
         self.session_timeout = session_timeout
         self.session_start_time = None
         self.logger = configure_logging(self.__class__.__name__)
-
+        
     def take_error_screenshot(self, error_name: str = "state_manager_error"):
         """Takes a screenshot when an error occurs (only in DEBUG mode)"""
         if os.getenv('LOG_LEVEL', '').upper() != 'DEBUG':
@@ -32,82 +33,40 @@ class StateManager:
             self.logger.error(f"Failed to take error screenshot: {str(e)}")
             return None
 
-    def run(self) -> None:
-        """Run the state machine until a terminal state or session timeout."""
+    def run(self):
+        """Main state machine loop"""
         self.session_start_time = time.time()
-        self.logger.info("=== Starting State Machine ===")
-
+        
         while True:
-            self.logger.info(f"CURRENT STATE: {self.current_state_name}")
-
-            # --- SESSION TIMEOUT CHECK ---
-            if self.session_timeout is not None:
-                elapsed = time.time() - self.session_start_time
-                if elapsed >= self.session_timeout:
-                    self.logger.info(
-                        f"Session timeout reached ({elapsed:.0f}s >= {self.session_timeout}s), initiating EXIT state"
-                    )
-                    exit_state = self.states.get("EXIT")
-                    if exit_state:
-                        try:
-                            exit_state.handle()
-                        except Exception as e:
-                            self.logger.error(f"Error in EXIT state during timeout: {e}")
-                    else:
-                        self.logger.warning("No EXIT state defined in StateManager")
-                    break
-
-            # --- STATE HANDLING ---
-            if self.current_state_name not in self.states:
-                error_msg = f"No handler for state '{self.current_state_name}'"
-                self.logger.error(error_msg)
-                self.take_error_screenshot(f"invalid_state_{self.current_state_name}")
+            # Check if we need to exit based on the current state
+            if self.current_state_name == StateType.EXIT:
+                self.logger.info("Exiting state machine")
                 break
-
-            current_state = self.states[self.current_state_name]
-
-            # Check detect method before handling state
-            try:
-                if not current_state.detect():
-                    self.logger.error(f"Could not detect state '{self.current_state_name}', transitioning to EXIT")
-                    self.take_error_screenshot(f"detection_failed_{self.current_state_name}")
-
-                    self.logger.info("Transitioning to EXIT state")
-                    self.current_state_name = "EXIT"
-                    current_state = self.states["EXIT"]
-            except Exception as e:
-                self.logger.error(f"Error in detect() for state {self.current_state_name}: {e}")
-                self.take_error_screenshot(f"detect_exception_{self.current_state_name}")
-                # If detection errors out, also go to EXIT
-                if "EXIT" in self.states:
-                    self.logger.info("Detection error, transitioning to EXIT state")
-                    self.current_state_name = "EXIT"
-                    current_state = self.states["EXIT"]
+                
+            # Check session timeout if enabled
+            if self.session_timeout and time.time() - self.session_start_time > self.session_timeout:
+                self.logger.info(f"Session timeout reached ({self.session_timeout / 60:.1f} minutes)")
+                if StateType.EXIT in self.states:
+                    self.current_state_name = StateType.EXIT
+                    continue
                 else:
-                    self.logger.error("No EXIT state defined, terminating state machine")
                     break
-
+            
             try:
-                self.logger.info(f"Executing {self.current_state_name} handler...")
+                current_state = self.states.get(self.current_state_name)
+                if not current_state:
+                    self.logger.error(f"No handler for state: {self.current_state_name}")
+                    break
+                    
+                # Process the current state and get the next state
                 next_state = current_state.handle()
                 self.logger.info(f"State transition: {self.current_state_name} -> {next_state}")
+                self.current_state_name = next_state
+                
             except Exception as e:
                 self.logger.error(f"Error in state {self.current_state_name}: {e}")
-                self.take_error_screenshot(f"exception_{self.current_state_name}")
-                traceback.print_exc()
-                break
-
-            # Terminal state: Stop looping.
-            if next_state is None:
-                self.logger.info("Reached terminal state, exiting state machine")
-                break
-
-            self.logger.info(f"{'='*4}\nTransitioning to new state: {next_state}\n{'='*4}")
-            
-            if self.current_state_name == "LOGIN" and next_state == "CONSULTATION":
-                time.sleep(2.0)
-                
-            self.current_state_name = next_state
-            
-            time.sleep(1)
-        self.logger.info("=== State machine execution complete ===")
+                self.logger.error(traceback.format_exc())
+                if StateType.EXIT in self.states:
+                    self.current_state_name = StateType.EXIT
+                else:
+                    break

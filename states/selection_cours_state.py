@@ -5,6 +5,7 @@ import pytesseract
 import pyautogui
 
 from .base import AppState
+from .state_types import StateType
 from utils.constants.button_coords import COLORS, COURSE_SELECTION_COORDS, TABS
 from utils.window_helpers import list_window_titles, wait_for_new_window
 from utils.coords import click, is_pixel_color_match
@@ -30,7 +31,7 @@ class SelectionCoursState(AppState):
             tolerance=20
         )
 
-    def handle(self) -> str:
+    def handle(self) -> StateType:
         self.logger.info("Handling course selection state")
 
         window = self.ensure_window_focus(["Le ChemiNot"])
@@ -52,7 +53,7 @@ class SelectionCoursState(AppState):
         coords = COURSE_SELECTION_COORDS.get(course_code)
         if not coords:
             self.logger.error(f"No coordinates for course {course_code}, exiting.")
-            return "EXIT"
+            return StateType.EXIT
 
         before = list_window_titles()
         click(coords)
@@ -96,7 +97,7 @@ class SelectionCoursState(AppState):
                     f"Course full, retrying in {retry_wait_min}m (next at {time.strftime('%H:%M:%S', time.localtime(time.time() + wait_secs))})"
                 )
                 time.sleep(wait_secs)
-                return "SELECTION_COURS"
+                return StateType.SELECTION_COURS
             else:
                 self.logger.warning("Popup was not a 'course full' message, proceeding.")
 
@@ -104,4 +105,4 @@ class SelectionCoursState(AppState):
 
         # No blocking popup or course open -> advance to availability check
         self.logger.info("No blocking popup; moving to availability check")
-        return "HORAIRE"
+        return StateType.HORAIRE

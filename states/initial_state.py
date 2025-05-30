@@ -4,8 +4,8 @@ import win32gui
 import win32con
 
 from utils.popup_detector import PopupDetector
-
 from .base import AppState
+from .state_types import StateType
 from utils.constants.texts import EXEMPTED_WINDOW_TITLES, UNWANTED_WINDOW_TITLES, WINDOW_TITLES
 
 class InitialState(AppState):
@@ -39,7 +39,7 @@ class InitialState(AppState):
         win32gui.EnumWindows(_close_if_unwanted, None)
         time.sleep(1)
 
-    def handle(self) -> str:
+    def handle(self) -> StateType:
         self.logger.info("InitialState: cleaning up unwanted windows...")
 
         # Perform cleanup of leftovers and popups
@@ -64,7 +64,7 @@ class InitialState(AppState):
         window = self.ensure_window_focus(app_titles)
         if window:
             self.logger.info(f"Application window found: {window.title}")
-            return "LOGIN"
+            return StateType.LOGIN
         else:
             self.logger.error("Could not find application window after launch!")
             raise RuntimeError(

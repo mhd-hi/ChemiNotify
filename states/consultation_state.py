@@ -1,14 +1,11 @@
 import time
-import pygetwindow as gw
-import os
 
 from .base import AppState
+from .state_types import StateType
 from utils.coords import click, is_pixel_color_match
 from utils.constants.button_coords import TABS, COLORS
 
-class ConsultationState(AppState):
-    """Handles the main consultation screen after login"""
-    
+class ConsultationState(AppState):    
     def detect(self) -> bool:
         consultation_window = self.ensure_window_focus(["Le ChemiNot"])
         if not consultation_window:
@@ -32,7 +29,7 @@ class ConsultationState(AppState):
             self.logger.info("Consultation window found but consultation tab is not active")
             return False
             
-    def handle(self) -> str:
+    def handle(self) -> StateType:
         self.logger.info("Handling consultation state")
         
         window = self.ensure_window_focus(["Le ChemiNot"])
@@ -47,4 +44,4 @@ class ConsultationState(AppState):
         time.sleep(0.5)
         
         self.logger.info("Navigated to inscription session, transitioning to inscription state")
-        return "INSCRIPTION"
+        return StateType.INSCRIPTION

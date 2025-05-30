@@ -2,6 +2,7 @@ import os
 import time
 
 from .base import AppState
+from .state_types import StateType
 from notifications.discord import DiscordNotification
 from utils.coords import moveTo, pixel, click, is_pixel_color_match
 from utils.constants.button_coords import COLORS, HORAIRE_STATE_COORDS, TABS
@@ -23,7 +24,7 @@ class HoraireState(AppState):
             tolerance=20
         )
 
-    def _schedule_retry(self, minutes: float) -> str:
+    def _schedule_retry(self, minutes: float) -> StateType:
         """Helper to log, switch tab, sleep, and return to course selection."""
         wait_secs = minutes * 60
         next_run = time.strftime("%H:%M:%S", time.localtime(time.time() + wait_secs))
@@ -31,7 +32,7 @@ class HoraireState(AppState):
         click(TABS['SELECTION_COURS'])
         time.sleep(1)
         time.sleep(wait_secs)
-        return "SELECTION_COURS"
+        return StateType.SELECTION_COURS
 
     def _take_window_screenshot(self, window, name_suffix=None) -> str | None:
         """
@@ -62,7 +63,7 @@ class HoraireState(AppState):
             self.logger.error(f"Error taking window screenshot: {str(e)}")
             return None
 
-    def handle(self) -> str:
+    def handle(self) -> StateType:
         self.logger.info("Handling HoraireState: checking course availability")
 
         window = self.ensure_window_focus(["Le ChemiNot"])

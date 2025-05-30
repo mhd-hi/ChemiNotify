@@ -5,6 +5,7 @@ import pygetwindow as gw
 import dotenv
 
 from .base import AppState
+from .state_types import StateType
 from utils.coords import click
 from utils.constants.button_coords import LOGIN_STATE_COORDS
 from utils.constants.texts import WINDOW_TITLES
@@ -20,13 +21,13 @@ class LoginState(AppState):
         self.logger.info("Login state not detected")
         return False
 
-    def handle(self) -> str:
+    def handle(self) -> StateType:
         self.logger.info("Handling login state")
         
         window = self.ensure_window_focus(WINDOW_TITLES['LOGIN_TITLE_BAR'])
         if not window:
             self.logger.warning("Could not focus login window, attempting to continue")
-            return "EXIT"
+            return StateType.EXIT
         
         # Load environment variables
         dotenv.load_dotenv()
@@ -41,7 +42,7 @@ class LoginState(AppState):
 
         if not app_username or not app_password:
             self.logger.error("Missing credentials in .env file (CHEMINOT_USERNAME or CHEMINOT_PASSWORD)")
-            return "ERROR"
+            return StateType.ERROR
 
         self.logger.info("Entering username...")
         click(LOGIN_STATE_COORDS['USERNAME_FIELD'], window=window, state_name="LOGIN")
@@ -83,4 +84,4 @@ class LoginState(AppState):
         time.sleep(2.0)
         
         self.logger.info("Login complete, transitioning to consultation state")
-        return "CONSULTATION"
+        return StateType.CONSULTATION
