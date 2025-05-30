@@ -1,35 +1,52 @@
 import time
-import pygetwindow as gw
 
 from .base import AppState
-from utils.coords import click
-from utils.constants.button_coords import TABS
+from .state_types import StateType
+from utils.coords import click, is_pixel_color_match
+from utils.constants.button_coords import TABS, COLORS
+
 
 class ConsultationState(AppState):
-    """Handles the main consultation screen after login"""
-    
     def detect(self) -> bool:
-        consultation_windows = gw.getWindowsWithTitle("CONSULTATION")
-        if consultation_windows:
-            self.logger.info("Consultation state detected via 'CONSULTATION' in title")
-            return True
-        # TODO: Double-check the color of the tab
-        self.logger.info("Consultation state not detected")
-        return False
+        consultation_window = self.ensure_window_focus(["Le ChemiNot"])
+        if not consultation_window:
+            return False
 
-    def handle(self) -> str:
+        tab_coords = TABS["CONSULTATION"]
+        active_colors = COLORS["CONSULTATION"]
+
+        tab_is_active = is_pixel_color_match(
+            window=consultation_window,
+            coords=tab_coords,
+            element_name="CONSULTATION_TAB",
+            expected_colors=active_colors,
+        )
+
+        if tab_is_active:
+            self.logger.info("Consultation state detected - consultation tab is active")
+            return True
+        else:
+            self.logger.info(
+                "Consultation window found but consultation tab is not active"
+            )
+            return False
+
+    def handle(self) -> StateType:
         self.logger.info("Handling consultation state")
-        
-        # Ensure window focus
-        window = self.ensure_window_focus(["CONSULTATION", "ChemiNot", "Cheminot"])
+
+        window = self.ensure_window_focus(["Le ChemiNot"])
+
         if not window:
-            self.logger.warning("Could not focus consultation window, attempting to continue")
-        
-        # Click on the INSCRIPTION_SESSION tab
+            self.logger.warning(
+                "Could not focus consultation window, attempting to continue"
+            )
+
         self.logger.info("Clicking on INSCRIPTION_SESSION tab")
-        click(TABS['INSCRIPTION_SESSION'], window=window)
+        click(TABS["INSCRIPTION_SESSION"], window=window)
 
         time.sleep(0.5)
-        
-        self.logger.info("Navigated to inscription session, transitioning to inscription state")
-        return "INSCRIPTION"
+
+        self.logger.info(
+            "Navigated to inscription session, transitioning to inscription state"
+        )
+        return StateType.INSCRIPTION

@@ -1,16 +1,18 @@
 import ctypes
-import socket
+
+from utils.file_utils import cleanup_old_screenshots
 
 DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 = -4
 try:
-    ctypes.windll.user32.SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2)
+    ctypes.windll.user32.SetProcessDpiAwarenessContext(
+        DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2
+    )
 except (AttributeError, OSError):
     try:
         ctypes.windll.shcore.SetProcessDpiAwareness(2)
     except Exception:
         ctypes.windll.user32.SetProcessDpiAware()
 
-import logging
 import os
 import sys
 import time
@@ -27,16 +29,24 @@ from states.inscription_state import InscriptionState
 from states.selection_cours_state import SelectionCoursState
 from states.horaire_state import HoraireState
 from states.exit_state import ExitState
+from states.state_types import StateType
 from utils.logging_config import configure_logging
 from utils.posthog import initialize_posthog
 
 required_files = {
-    'JNLP file': os.getenv('JNLP_PATH'),
-    'Tesseract executable': os.getenv('TESSERACT_CMD'),
+    "JNLP file": os.getenv("CHEMINOT_FILE_PATH"),
+    "Tesseract executable": os.getenv(
+        "TESSERACT_CMD", "C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
+    ),
 }
-missing = [name for name, path in required_files.items() if not path or not os.path.isfile(path)]
+missing = [
+    name
+    for name, path in required_files.items()
+    if not path or not os.path.isfile(path)
+]
 
-pytesseract.pytesseract.tesseract_cmd = os.getenv('TESSERACT_CMD')
+pytesseract.pytesseract.tesseract_cmd = os.getenv("TESSERACT_CMD")
+
 
 def main():
     logger = configure_logging("Main")
@@ -55,29 +65,31 @@ def main():
         sys.exit(1)
 
     try:
-        SESSION_DURATION_MINUTES = int(os.getenv('SESSION_DURATION_MINUTES'))
-        logger.debug("SESSION_DURATION_MINUTES: %s", SESSION_DURATION_MINUTES)
+        cleanup_old_screenshots(days=7)
 
-        # Loop forever: each pass is one session-duration
+        SESSION_DURATION_MINUTES = int(os.getenv("SESSION_DURATION_MINUTES", 32))
+
         while True:
             # Fresh state instances each session
             states = {
-                "INITIAL":        InitialState(),
-                "LOGIN":          LoginState(),
-                "CONSULTATION":   ConsultationState(),
-                "INSCRIPTION":    InscriptionState(),
-                "SELECTION_COURS":SelectionCoursState(),
-                "HORAIRE":        HoraireState(),
-                "EXIT":           ExitState(),
+                StateType.INITIAL: InitialState(),
+                StateType.LOGIN: LoginState(),
+                StateType.CONSULTATION: ConsultationState(),
+                StateType.INSCRIPTION: InscriptionState(),
+                StateType.SELECTION_COURS: SelectionCoursState(),
+                StateType.HORAIRE: HoraireState(),
+                StateType.EXIT: ExitState(),
             }
 
             manager = StateManager(
-                states,
-                initial_state="INITIAL",
-                session_timeout=SESSION_DURATION_MINUTES * 60
+                states=states,
+                initial_state=StateType.INITIAL,
+                session_timeout=SESSION_DURATION_MINUTES * 60,
             )
 
-            logger.info(f"-> Starting new session of up to {SESSION_DURATION_MINUTES} minutes")
+            logger.info(
+                f"-> Starting new session of up to {SESSION_DURATION_MINUTES} minutes"
+            )
             manager.run()
 
             logger.info("Session ended (timeout or terminal). Restarting in 5 seconds…")
@@ -92,6 +104,7 @@ def main():
         if posthog_client:
             posthog_client.flush()
         logger.info("=== ChemiNotify Finished ===")
+
 
 if __name__ == "__main__":
     main()

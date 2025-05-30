@@ -2,15 +2,17 @@ import time
 import pygetwindow as gw
 from typing import Set, Optional
 
+
 def list_window_titles() -> Set[str]:
     """Return the set of all non-empty window titles right now."""
     return {w.title for w in gw.getAllWindows() if w.title.strip()}
 
+
 def wait_for_new_window(
     before: Set[str],
     timeout: float = 2.0,
-    poll: float   = 0.1,
-    ignore: Set[str] = None
+    poll: float = 0.1,
+    ignore: Optional[Set[str]] = None,
 ) -> Optional[str]:
     """
     Poll for up to `timeout` seconds for a window title to appear
