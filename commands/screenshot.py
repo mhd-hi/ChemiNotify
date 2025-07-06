@@ -48,7 +48,7 @@ def screenshot(region=None, window=None, state_name="LE_CHEMINOT"):
     # Case A: logical region + window to scale & crop
     if window and region:
         # Import here to avoid circular import
-        from utils.coords import _client_to_screen, _scale_for_window
+        from commands.coords import _client_to_screen, _scale_for_window
 
         hwnd = window._hWnd
         x, y, w, h = region

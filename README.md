@@ -7,6 +7,10 @@ Uses image recognition to detect open spots and sends notifications when courses
 
 **Note:** This tool only works during active registration periods when the Cheminot system allows course enrollment. It will not function outside of these periods, which is normal behavior.
 
+## Documentation
+
+For detailed information about the codebase structure and architecture, see [Code Structure](docs/code-structure.md).
+
 ## Features
 - Automated login to the Cheminot system
 - Course monitoring at configurable intervals

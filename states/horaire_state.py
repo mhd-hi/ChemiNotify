@@ -4,7 +4,7 @@ import time
 from .base import AppState
 from .state_types import StateType
 from notifications.discord import DiscordNotification
-from utils.coords import moveTo, click, is_pixel_color_match
+from commands.coords import moveTo, click, is_pixel_color_match
 from utils.constants.button_coords import COLORS, HORAIRE_STATE_COORDS, TABS
 
 

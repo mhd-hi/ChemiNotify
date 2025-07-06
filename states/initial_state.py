@@ -3,7 +3,7 @@ import time
 import win32gui
 import win32con
 
-from utils.popup_detector import PopupDetector
+from commands.popup_detector import PopupDetector
 from .base import AppState
 from .state_types import StateType
 from utils.constants.texts import (

@@ -1,7 +1,7 @@
 import time
 from .base import AppState
 from .state_types import StateType
-from utils.coords import click
+from commands.coords import click
 import pyautogui
 from utils.constants.button_coords import TABS
 from utils.constants.texts import WINDOW_TITLES

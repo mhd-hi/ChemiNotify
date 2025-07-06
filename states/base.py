@@ -6,8 +6,8 @@ from abc import ABC, abstractmethod
 from .state_types import StateType
 
 from utils.logging_config import configure_logging
-from utils.screenshot import take_debug_screenshot
-from utils.popup_detector import normalize
+from commands.screenshot import take_debug_screenshot
+from commands.popup_detector import normalize
 
 
 class AppState(ABC):

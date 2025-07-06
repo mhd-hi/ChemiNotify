@@ -4,8 +4,8 @@ import pygetwindow as gw
 from .base import AppState
 from .state_types import StateType
 from utils.constants.button_coords import COLORS, TABS
-from utils.coords import click, is_pixel_color_match
-from utils.popup_detector import PopupDetector
+from commands.coords import click, is_pixel_color_match
+from commands.popup_detector import PopupDetector
 
 
 class InscriptionState(AppState):

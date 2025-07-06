@@ -28,7 +28,7 @@ class StateManager:
             return None
 
         try:
-            from utils.screenshot import take_debug_screenshot
+            from commands.screenshot import take_debug_screenshot
 
             return take_debug_screenshot(error_name)
         except Exception as e:
