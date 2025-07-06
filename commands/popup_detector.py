@@ -5,7 +5,7 @@ import pygetwindow as gw
 from typing import Optional, Tuple, Set, Callable, Any
 
 from utils.window_helpers import list_window_titles, wait_for_new_window
-from utils.screenshot import screenshot
+from commands.screenshot import screenshot
 from utils.logging_config import configure_logging
 from utils.constants.texts import POPUP_TYPES, POPUP_UNKNOWN_RETURN_VALUE
 

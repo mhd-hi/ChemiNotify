@@ -8,8 +8,8 @@ from .base import AppState
 from .state_types import StateType
 from utils.constants.button_coords import COLORS, COURSE_SELECTION_COORDS, TABS
 from utils.window_helpers import list_window_titles, wait_for_new_window
-from utils.coords import click, is_pixel_color_match
-from utils.screenshot import screenshot
+from commands.coords import click, is_pixel_color_match
+from commands.screenshot import screenshot
 
 
 class SelectionCoursState(AppState):

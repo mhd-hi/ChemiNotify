@@ -4,7 +4,7 @@ import pygetwindow as gw
 
 from utils.constants.button_coords import REF_WINDOW_SIZES
 from utils.logging_config import configure_logging
-from utils.screenshot import screenshot
+from commands.screenshot import screenshot
 
 logger = configure_logging("Coords")
 
@@ -101,7 +101,7 @@ def is_pixel_color_match(
     """
     import time
     from datetime import datetime
-    from utils.screenshot import screenshot
+    from commands.screenshot import screenshot
     from utils.file_utils import save_file
 
     if expected_colors is None or len(expected_colors) == 0:
@@ -116,7 +116,7 @@ def is_pixel_color_match(
                 window.activate()
                 time.sleep(0.2)
 
-            from utils.coords import pixel
+            from commands.coords import pixel
 
             pixel_color = pixel(coords, window=window)
 

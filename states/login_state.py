@@ -6,10 +6,10 @@ import dotenv
 
 from .base import AppState
 from .state_types import StateType
-from utils.coords import click
+from commands.coords import click
 from utils.constants.button_coords import LOGIN_STATE_COORDS
 from utils.constants.texts import WINDOW_TITLES
-from utils.popup_detector import PopupDetector
+from commands.popup_detector import PopupDetector
 
 
 class LoginState(AppState):

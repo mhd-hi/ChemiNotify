@@ -2,7 +2,7 @@ import time
 
 from .base import AppState
 from .state_types import StateType
-from utils.coords import click, is_pixel_color_match
+from commands.coords import click, is_pixel_color_match
 from utils.constants.button_coords import TABS, COLORS
 
 
