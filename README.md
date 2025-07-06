@@ -1,9 +1,11 @@
 # ChemiNotify
-Automation tool for monitoring course availability in Cheminot application system.
+> _Bot for monitoring course availability in Cheminot application system._
 
 ## Overview
 
-ChemiNotify automates the monitoring of course availability in the Cheminot enrollment system, using image recognition to detect open spots and sending notifications when courses become available.
+Uses image recognition to detect open spots and sends notifications when courses become available.
+
+**Note:** This tool only works during active registration periods when the Cheminot system allows course enrollment. It will not function outside of these periods, which is normal behavior.
 
 ## Features
 - Automated login to the Cheminot system
@@ -46,5 +48,4 @@ python main.py
 This tool is provided for personal use only. By using ChemiNotify, you agree to the following:
 
 - This tool runs entirely on your local machine and does not collect, store, or transmit any student data.
-- With your consent, the app sends anonymous usage data (a random UUID only) to help track how many people are using the tool.
 - This tool is not affiliated with or endorsed by any educational institution or the developers of the ChemiNot system.
