@@ -25,22 +25,28 @@ For detailed information about the codebase structure and architecture, see [Cod
 - Java
 
 ### Installation
+
+On Powershell:
+
 1. Clone the repo
 ```
 git clone https://github.com/mhd-hi/ChemiNotify.git
 cd ChemiNotify
 ```
 2. Install dependencies 
-On Powershell:
 ```
 pip install -r requirements.txt
+# you may use any other installer
+choco install tesseract -y 
+# or close and re-open powershell
+refreshenv
 Invoke-WebRequest -Uri "https://github.com/tesseract-ocr/tessdata/raw/main/fra.traineddata" -OutFile "C:\Program Files\Tesseract-OCR\tessdata\fra.traineddata"
 ```
 
 ### Configuration
 3. Configure environment variables:
 - Copy `.env.example` and rename it to `.env` 
-4. Edit the .env file with your specific settings (Cheminot credentials, course, file paths, [discord webhook](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks))
+4. Edit the .env file with your specific settings (Cheminot credentials, course you'd like to track, file paths, [discord webhook](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks))
 
 5. Run the app
 ```
@@ -52,4 +58,5 @@ python main.py
 This tool is provided for personal use only. By using ChemiNotify, you agree to the following:
 
 - This tool runs entirely on your local machine and does not collect, store, or transmit any student data.
+
 - This tool is not affiliated with or endorsed by any educational institution or the developers of the ChemiNot system.
