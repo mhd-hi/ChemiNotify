@@ -100,6 +100,7 @@ class SelectionCoursState(AppState):
             else:
                 self.logger.warning(
                     "Popup was not a 'course full' message, proceeding."
+                    " Taking screenshot `popup_debug` for debugging."
                 )
 
                 self.take_screenshot("popup_debug")

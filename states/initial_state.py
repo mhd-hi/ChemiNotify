@@ -63,16 +63,20 @@ class InitialState(AppState):
         self.logger.info("Waiting for Java to launch the application (3 seconds)...")
         time.sleep(3)
 
-        # Focus the newly opened window
-        app_titles = WINDOW_TITLES["LOGIN_TITLE_BAR"]
-        self.logger.info("Attempting to locate and focus the Cheminot window...")
-        window = self.ensure_window_focus(app_titles)
-        if window:
-            self.logger.info(f"Application window found: {window.title}")
-            return StateType.LOGIN
-        else:
-            self.logger.error("Could not find application window after launch!")
-            raise RuntimeError(
-                "Failed to find and focus the Cheminot application window. "
-                "Please check if the application launched correctly."
+        max_wait_seconds = 30
+        for i in range(max_wait_seconds):
+            self.logger.info(
+                f"Attempt #{i + 1} to locate and focus the Cheminot window..."
             )
+            app_titles = WINDOW_TITLES["LOGIN_TITLE_BAR"]
+            window = self.ensure_window_focus(app_titles)
+            if window:
+                self.logger.info(f"Application window found: {window.title}")
+                return StateType.LOGIN
+            time.sleep(1)
+
+        self.logger.error("Could not find application window after launch!")
+        raise RuntimeError(
+            "Failed to find and focus the Cheminot application window."
+            " Please check if the application launched correctly."
+        )

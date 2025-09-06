@@ -84,7 +84,13 @@ class AppState(ABC):
 
         if found_window:
             self.logger.debug(f"Found window, activating: {found_window.title}")
-            found_window.activate()
+            try:
+                found_window.activate()
+            except gw.PyGetWindowException as e:
+                if "Error code from Windows: 0" in str(e):
+                    self.logger.debug("Ignoring benign activate error (code 0)")
+                else:
+                    raise
             time.sleep(0.1)
             return found_window
 
