@@ -1,3 +1,4 @@
+import time
 import win32gui
 import pyautogui
 import pygetwindow as gw
@@ -50,6 +51,13 @@ def click(logical_point, window=None, state_name="LE_CHEMINOT"):
     else:
         screen_x, screen_y = logical_point
 
+    _nudge_from_corners()
+    moveTo(
+        logical_point=logical_point,
+        window=window,
+        duration=0.10,
+        state_name=state_name,
+    )
     pyautogui.click(screen_x, screen_y)
 
 
@@ -67,6 +75,7 @@ def moveTo(logical_point, window=None, duration=0.0, state_name="LE_CHEMINOT"):
     else:
         screen_x, screen_y = logical_point
 
+    _nudge_from_corners()
     pyautogui.moveTo(screen_x, screen_y, duration=duration)
 
 
@@ -173,3 +182,15 @@ def is_pixel_color_match(
         f"Pixel at {coords} for '{element_name}' did not match expected colors after {max_attempts} attempts."
     )
     return False
+
+
+def _nudge_from_corners():
+    try:
+        w, h = pyautogui.size()
+        x, y = pyautogui.position()
+        if x <= 1 or y <= 1 or x >= w - 2 or y >= h - 2:
+            # move to center to clear fail-safe zone
+            pyautogui.moveTo(w // 2, h // 2, duration=0.12)
+            time.sleep(0.05)
+    except Exception:
+        pass

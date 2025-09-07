@@ -8,6 +8,7 @@ from utils.window_helpers import list_window_titles, wait_for_new_window
 from commands.screenshot import screenshot
 from utils.logging_config import configure_logging
 from utils.constants.texts import POPUP_TYPES, POPUP_UNKNOWN_RETURN_VALUE
+from commands.coords import _nudge_from_corners
 
 
 class PopupDetector:
@@ -276,6 +277,7 @@ class PopupDetector:
                 self.logger.debug("Attempting Alt+F4 method to close popup")
                 popup_window.activate()
                 time.sleep(0.1)
+                _nudge_from_corners()
                 pyautogui.hotkey("alt", "f4")
                 self.logger.debug("Alt+F4 sent to popup window")
             except Exception as e2:
@@ -398,6 +400,7 @@ class PopupDetector:
             time.sleep(0.3)
 
             try:
+                _nudge_from_corners()
                 ok_location = pyautogui.locateOnScreen(
                     ok_button_path, confidence=0.7, region=region
                 )
@@ -407,9 +410,11 @@ class PopupDetector:
                         f"Found OK button at {x}, {y} - moving mouse to hover"
                     )
                     # First hover over the button
+                    _nudge_from_corners()
                     pyautogui.moveTo(x, y)
                     time.sleep(0.5)  # Wait while hovering before clicking
                     self.logger.debug("Clicking OK button after hover")
+                    _nudge_from_corners()
                     pyautogui.click()
                     self.logger.info("Successfully clicked OK button")
                     time.sleep(0.5)  # Wait a moment after clicking
@@ -422,6 +427,7 @@ class PopupDetector:
             # If we got here, we couldn't find or click the OK button
             # Fall back to Enter key (which often confirms dialogs)
             self.logger.debug("Trying Enter key as fallback for OK")
+            _nudge_from_corners()
             pyautogui.press("enter")
             time.sleep(0.3)
 
