@@ -1,4 +1,7 @@
-WINDOW_TITLES = {"LOGIN_TITLE_BAR": ["Bienvenue sur ChemiNot"]}
+WINDOW_TITLES = {
+    "LOGIN_TITLE_BAR": ["Bienvenue sur ChemiNot"],
+    "MAIN_WINDOW": ["Le ChemiNot"],
+}
 UNWANTED_WINDOW_TITLES = ["cheminot", "à propos de ", "Attention"]
 EXEMPTED_WINDOW_TITLES = [
     "Visual Studio Code",

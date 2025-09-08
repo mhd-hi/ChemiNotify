@@ -14,7 +14,7 @@ class ExitState(AppState):
     def handle(self) -> StateType:
         self.logger.info("ExitState: starting clean-up...")
 
-        window = self.ensure_window_focus(["Le ChemiNot"])
+        window = self.ensure_window_focus(WINDOW_TITLES["MAIN_WINDOW"])
         if not window:
             self.logger.warning("Could not focus main window for quitting")
         else:
@@ -25,7 +25,7 @@ class ExitState(AppState):
 
         login_window = self.ensure_window_focus(WINDOW_TITLES["LOGIN_TITLE_BAR"])
         if login_window:
-            self.logger.debug("Login window detected-sending Alt+F4 to close it")
+            self.logger.debug("Login window detected. Sending Alt+F4 to close it")
             pyautogui.hotkey("alt", "f4")
             time.sleep(1)
         else:

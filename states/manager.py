@@ -1,7 +1,7 @@
 import time
 import traceback
 import os
-from typing import Dict, Optional, Union
+from typing import Dict, Optional
 from utils.logging_config import configure_logging
 from .base import AppState
 from .state_types import StateType
@@ -14,11 +14,11 @@ class StateManager:
         self,
         states: Dict[StateType, AppState],
         initial_state: StateType = StateType.INITIAL,
-        session_timeout: Optional[int] = None,  # in seconds
+        session_timeout_seconds: Optional[int] = None,
     ):
         self.states = states
         self.current_state_name = initial_state
-        self.session_timeout = session_timeout
+        self.session_timeout = session_timeout_seconds
         self.session_start_time = None
         self.logger = configure_logging(self.__class__.__name__)
 
