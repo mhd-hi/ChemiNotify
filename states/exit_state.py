@@ -14,6 +14,7 @@ class ExitState(AppState):
     def handle(self) -> StateType:
         self.logger.info("ExitState: starting clean-up...")
 
+        time.sleep(4)
         window = self.ensure_window_focus(WINDOW_TITLES["MAIN_WINDOW"])
         if not window:
             self.logger.warning("Could not focus main window for quitting")

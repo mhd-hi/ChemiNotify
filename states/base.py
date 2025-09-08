@@ -73,11 +73,11 @@ class AppState(ABC):
         windows = gw.getAllWindows()
 
         for title in window_titles:
-            self.logger.debug(f"Searching for window with title like '{title}'")
+            self.logger.debug(f"Searching for window with title like `{title}`")
             for win in windows:
                 if normalize(title) in normalize(win.title):
                     found_window = win
-                    self.logger.debug(f"Found window with fuzzy match '{win.title}'")
+                    self.logger.debug(f"Found window with match: `{win.title}`")
                     break
             if found_window:
                 break

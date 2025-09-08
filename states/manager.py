@@ -40,11 +40,6 @@ class StateManager:
         self.session_start_time = time.time()
 
         while True:
-            # Check if we need to exit based on the current state
-            if self.current_state_name == StateType.EXIT:
-                self.logger.info("Exiting state machine")
-                break
-
             # Check session timeout if enabled
             if (
                 self.session_timeout
@@ -53,11 +48,7 @@ class StateManager:
                 self.logger.info(
                     f"Session timeout reached ({self.session_timeout / 60:.1f} minutes)"
                 )
-                if StateType.EXIT in self.states:
-                    self.current_state_name = StateType.EXIT
-                    continue
-                else:
-                    break
+                self.current_state_name = StateType.EXIT
 
             try:
                 current_state = self.states.get(self.current_state_name)
@@ -72,12 +63,14 @@ class StateManager:
                 self.logger.info(
                     f"State transition: {self.current_state_name} -> {next_state}"
                 )
+
+                if self.current_state_name == StateType.EXIT:
+                    self.logger.info("EXIT state completed, exiting state machine")
+                    break
+
                 self.current_state_name = next_state
 
             except Exception as e:
                 self.logger.error(f"Error in state {self.current_state_name}: {e}")
                 self.logger.error(traceback.format_exc())
-                if StateType.EXIT in self.states:
-                    self.current_state_name = StateType.EXIT
-                else:
-                    break
+                self.current_state_name = StateType.EXIT

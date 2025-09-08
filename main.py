@@ -86,7 +86,7 @@ def main():
             manager.run()
 
             logger.info(
-                f"Session ended (timeout or exit). Restarting in {RETRY_WAIT_MINUTES} minutes..."
+                f"Session ended (timeout or exit). Restarting in {RETRY_WAIT_MINUTES} minutes at {time.strftime('%H:%M:%S', time.localtime(time.time() + RETRY_WAIT_MINUTES * 60))}..."
             )
             time.sleep(RETRY_WAIT_MINUTES * 60)
 
