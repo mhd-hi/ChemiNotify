@@ -47,7 +47,7 @@ class LoginState(AppState):
             self.logger.error(
                 "Missing credentials in .env file (CHEMINOT_USERNAME or CHEMINOT_PASSWORD)"
             )
-            return StateType.ERROR
+            return StateType.EXIT
 
         self.logger.info("Entering username...")
         click(LOGIN_STATE_COORDS["USERNAME_FIELD"], window=window, state_name="LOGIN")

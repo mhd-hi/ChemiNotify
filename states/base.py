@@ -68,29 +68,36 @@ class AppState(ABC):
         Match if window title startswith or contains the expected string, case-insensitive.
         """
         self.logger.debug(f"Ensuring window focus for: {', '.join(window_titles)}")
-        found_window = None
 
+        time.sleep(0.5)
+
+        found_window = None
         windows = gw.getAllWindows()
 
         for title in window_titles:
-            self.logger.debug(f"Searching for window with title like '{title}'")
+            self.logger.debug(f"Searching for window with title like `{title}`")
             for win in windows:
                 if normalize(title) in normalize(win.title):
                     found_window = win
-                    self.logger.debug(f"Found window with fuzzy match '{win.title}'")
+                    self.logger.debug(f"Found window with match: `{win.title}`")
                     break
             if found_window:
                 break
 
         if found_window:
             self.logger.debug(f"Found window, activating: {found_window.title}")
-            found_window.activate()
+            try:
+                found_window.activate()
+            except gw.PyGetWindowException as e:
+                if "Error code from Windows: 0" in str(e):
+                    self.logger.debug("Ignoring benign activate error (code 0)")
+                else:
+                    raise
             time.sleep(0.1)
             return found_window
 
         self.take_error_screenshot("window_focus_failed")
-        self.logger.error(
+        self.logger.warning(
             f"Could not find any window matching: {', '.join(window_titles)}"
         )
-        self.logger.warning("Could not find application window")
         return None

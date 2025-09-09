@@ -85,24 +85,20 @@ class SelectionCoursState(AppState):
                 pyautogui.hotkey("alt", "f4")
                 self.logger.info("-> Closed popup window with Alt+F4")
 
-            # If course is full, wait and retry
+            # If course is full, exit to restart the session
             if "complets" in text or "annulations" in text:
-                retry_wait_min = float(
-                    os.getenv("COURSE_NOT_AVAILABLE_RETRY_WAIT_MINUTES", 10)
-                )
-                wait_secs = retry_wait_min * 60
+                retry_wait_min = float(os.getenv("RETRY_WAIT_MINUTES", 15))
 
                 self.logger.info(
-                    f"Course full, retrying in {retry_wait_min}m (next at {time.strftime('%H:%M:%S', time.localtime(time.time() + wait_secs))})"
+                    f"Course full, exiting session. Cheminot will restart in {retry_wait_min}m (next at {time.strftime('%H:%M:%S', time.localtime(time.time() + retry_wait_min * 60))})"
                 )
-                time.sleep(wait_secs)
-                return StateType.SELECTION_COURS
+                return StateType.EXIT
             else:
                 self.logger.warning(
-                    "Popup was not a 'course full' message, proceeding."
+                    "Popup was not a 'course full' message, proceeding. Taking screenshot `unknown_popup_debug` for debugging."
                 )
 
-                self.take_screenshot("popup_debug")
+                self.take_screenshot("unknown_popup_debug")
 
         # No blocking popup or course open -> advance to availability check
         self.logger.info("No blocking popup; moving to availability check")

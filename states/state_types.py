@@ -11,7 +11,6 @@ class StateType(Enum):
     SELECTION_COURS = "SELECTION_COURS"
     HORAIRE = "HORAIRE"
     EXIT = "EXIT"
-    ERROR = "ERROR"
 
     def __str__(self) -> str:
         return self.value

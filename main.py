@@ -17,7 +17,12 @@ import os
 import sys
 import time
 import dotenv
+import pyautogui
 import pytesseract
+
+# On Windows VMs, pyautogui's failsafe can be triggered accidentally
+pyautogui.FAILSAFE = False
+pyautogui.PAUSE = 0.08
 
 dotenv.load_dotenv()
 
@@ -58,7 +63,7 @@ def main():
     try:
         cleanup_old_screenshots(days=7)
 
-        SESSION_DURATION_MINUTES = int(os.getenv("SESSION_DURATION_MINUTES", 32))
+        RETRY_WAIT_MINUTES = int(os.getenv("RETRY_WAIT_MINUTES", 15))
 
         while True:
             # Fresh state instances each session
@@ -75,16 +80,18 @@ def main():
             manager = StateManager(
                 states,
                 initial_state=StateType.INITIAL,
-                session_timeout=SESSION_DURATION_MINUTES * 60,
+                session_timeout_seconds=RETRY_WAIT_MINUTES * 60,
             )
 
             logger.info(
-                f"-> Starting new session of up to {SESSION_DURATION_MINUTES} minutes"
+                f"-> Starting new session of up to {RETRY_WAIT_MINUTES} minutes"
             )
             manager.run()
 
-            logger.info("Session ended (timeout or terminal). Restarting in 5 seconds…")
-            time.sleep(5)
+            logger.info(
+                f"Session ended (timeout or exit). Restarting in {RETRY_WAIT_MINUTES} minutes at {time.strftime('%H:%M:%S', time.localtime(time.time() + RETRY_WAIT_MINUTES * 60))}..."
+            )
+            time.sleep(RETRY_WAIT_MINUTES * 60)
 
     except KeyboardInterrupt:
         logger.info("Interrupted by user, shutting down.")
