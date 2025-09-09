@@ -95,8 +95,7 @@ class SelectionCoursState(AppState):
                 return StateType.EXIT
             else:
                 self.logger.warning(
-                    "Popup was not a 'course full' message, proceeding."
-                    " Taking screenshot `unknown_popup_debug` for debugging."
+                    "Popup was not a 'course full' message, proceeding. Taking screenshot `unknown_popup_debug` for debugging."
                 )
 
                 self.take_screenshot("unknown_popup_debug")
