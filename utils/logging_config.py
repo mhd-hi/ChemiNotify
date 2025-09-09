@@ -13,7 +13,12 @@ def configure_logging(name="Logger"):
     handlers = [
         logging.StreamHandler(),
         logging.FileHandler("logs/cheminotify.log", mode="a"),
+        logging.FileHandler("logs/error.log", mode="a"),
     ]
+
+    # Set error.log to only log ERROR and above
+    error_handler = handlers[2]
+    error_handler.setLevel(logging.ERROR)
 
     # Configure logging
     logging.basicConfig(

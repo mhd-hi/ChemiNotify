@@ -5,7 +5,6 @@ import pygetwindow as gw
 
 from utils.constants.button_coords import REF_WINDOW_SIZES
 from utils.logging_config import configure_logging
-from commands.screenshot import screenshot
 
 logger = configure_logging("Coords")
 
@@ -185,6 +184,9 @@ def is_pixel_color_match(
 
 
 def _nudge_from_corners():
+    """
+    Moves the mouse cursor away from screen corners to avoid pyautogui failsafe exceptions.
+    """
     try:
         w, h = pyautogui.size()
         x, y = pyautogui.position()

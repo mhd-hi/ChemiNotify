@@ -20,7 +20,8 @@ import dotenv
 import pyautogui
 import pytesseract
 
-pyautogui.PAUSE = float(os.getenv("PYAUTO_PAUSE", "0.08"))
+pyautogui.FAILSAFE = False
+pyautogui.PAUSE = 0.08
 dotenv.load_dotenv()
 
 from states.manager import StateManager
