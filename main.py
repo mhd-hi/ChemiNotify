@@ -20,8 +20,10 @@ import dotenv
 import pyautogui
 import pytesseract
 
+# On Windows VMs, pyautogui's failsafe can be triggered accidentally
 pyautogui.FAILSAFE = False
 pyautogui.PAUSE = 0.08
+
 dotenv.load_dotenv()
 
 from states.manager import StateManager
