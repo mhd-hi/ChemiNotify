@@ -68,8 +68,10 @@ class AppState(ABC):
         Match if window title startswith or contains the expected string, case-insensitive.
         """
         self.logger.debug(f"Ensuring window focus for: {', '.join(window_titles)}")
-        found_window = None
 
+        time.sleep(0.5)
+
+        found_window = None
         windows = gw.getAllWindows()
 
         for title in window_titles:
@@ -95,8 +97,7 @@ class AppState(ABC):
             return found_window
 
         self.take_error_screenshot("window_focus_failed")
-        self.logger.error(
+        self.logger.warning(
             f"Could not find any window matching: {', '.join(window_titles)}"
         )
-        self.logger.warning("Could not find application window")
         return None
