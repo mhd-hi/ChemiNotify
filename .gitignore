@@ -29,7 +29,7 @@ env/
 
 # IDE files
 .idea/
-.vscode/
+.vscode/PythonImportHelper-v2-Completion.json
 *.swp
 *.swo
 
