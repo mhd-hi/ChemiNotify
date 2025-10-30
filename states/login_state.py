@@ -78,6 +78,12 @@ class LoginState(AppState):
         time.sleep(0.5)
         click(LOGIN_STATE_COORDS["LOGIN_BUTTON"], window=window, state_name="LOGIN")
 
+        # This clears out the popup (that asks whether you want to enroll/cancel session)
+        time.sleep(1)
+        pyautogui.press("tab")
+        time.sleep(0.5)
+        pyautogui.press("space")
+
         self.logger.info("Waiting for login to complete")
         time.sleep(5.0)
 
