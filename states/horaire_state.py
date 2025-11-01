@@ -32,7 +32,7 @@ class HoraireState(AppState):
         # Replace the _take_window_screenshot call with base class method
         screenshot_path = self.take_screenshot("before_pixel_check")
 
-        logical_pt = HORAIRE_STATE_COORDS["GROUP_COURSE_BLACK_PIXEL"]
+        logical_pt = HORAIRE_STATE_COORDS["FIRST_GROUP_COURSE_BLACK_PIXEL"]
         moveTo(logical_pt, window=window, duration=0.1)
         time.sleep(0.1)
 

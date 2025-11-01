@@ -1,3 +1,11 @@
+# How to add a course code:
+#
+# 1. Use Windows Spy for AHKv2 (from the AutoHotkey Dash app) to get the pixel coordinates.
+# 2. Open Cheminot and hover over the pixel corresponding to the course you want to add.
+# 3. Note the X and Y coordinates shown in Windows Spy.
+# 4. Add a new entry to the COURSE_SELECTION_COORDS dictionary below, using the course code as the key and the (X, Y) tuple as the value.
+#    Example: "NEWCODE": (x, y),
+
 REF_WINDOW_SIZES = {
     "LOGIN": (364.0, 321.0),
     "LE_CHEMINOT": (608.0, 468.0),
@@ -60,6 +68,7 @@ COURSE_SELECTION_COORDS = {
     "GTI650": (350, 136),
     "LOG675": (350, 222),
     "LOG430": (350, 249),
+    "GTI510": (276, 335),
     # Cours choix
     "GIA602": (430, 127),
     "GPE450": (430, 141),
@@ -121,7 +130,7 @@ PM_Y = 292
 EV_Y = 367
 
 HORAIRE_STATE_COORDS = {
-    "GROUP_COURSE_BLACK_PIXEL": (348, 67),
+    "FIRST_GROUP_COURSE_BLACK_PIXEL": (348, 67),
     "MONDAY_AM": (MONDAY_X, AM_Y),
     "MONDAY_PM": (MONDAY_X, PM_Y),
     "MONDAY_EV": (MONDAY_X, EV_Y),
